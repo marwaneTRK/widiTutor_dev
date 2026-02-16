@@ -7,17 +7,45 @@ const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 
 const app = express();
-const testRoute = require("./src/routes/test");
+
+// ====== ROUTES IMPORT ======
+const authRoutes = require("./src/routes/authRoutes"); // ✅ auth routes only
 
 // ====== SECURITY MIDDLEWARE ======
 
-// Set secure HTTP headers
+// Secure HTTP headers
 app.use(helmet());
 
-// Allowed frontend origins
+// Logging
+app.use(morgan("tiny"));
+
+// Parse JSON
+app.use(express.json());
+
+// ====== RATE LIMITING ======
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
+
+// Stronger limiter for auth
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use("/api/auth", authLimiter);
+
+// ====== CORS ======
+
 const allowedOrigins = [
-  "http://localhost:3000", // Dockerized frontend
-  "http://localhost:5173", // Vite dev
+  "http://localhost:3000",
+  "http://localhost:5173",
   "https://monapp.com",
   "https://admin.monapp.com",
 ];
@@ -25,7 +53,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests without origin (Postman, mobile apps, server-to-server)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -39,32 +66,12 @@ app.use(
   })
 );
 
-// Limit repeated requests to public APIs
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 6,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-app.use(limiter);
+// ====== API ROUTES ======
 
-// Logging
-app.use(morgan("tiny"));
+app.use("/api/auth", authRoutes); // ✅ only auth
 
-// ====== MIDDLEWARE ======
-app.use(express.json());
-app.use("/api/test", testRoute);
+// ====== ROOT ROUTES ======
 
-// ====== MONGODB CONNECTION ======
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Atlas connected successfully"))
-  .catch((err) => {
-    console.error("MongoDB connection error:", err.message);
-    process.exit(1);
-  });
-
-// ====== ROUTES ======
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",
@@ -76,8 +83,19 @@ app.get("/api/hello", (req, res) => {
   res.json({ message: "Hello from Express + MongoDB Atlas!" });
 });
 
+// ====== MONGODB CONNECTION ======
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Atlas connected successfully"))
+  .catch((err) => {
+    console.error("MongoDB connection error:", err.message);
+    process.exit(1);
+  });
+
 // ====== START SERVER ======
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

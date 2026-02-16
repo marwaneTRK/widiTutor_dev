@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import TestMern from "./components/testMern";
+import Login from "./pages/login";
 
 function Home() {
   return <h1>Home</h1>;
@@ -13,7 +13,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/test" element={<TestMern />} />
+      <Route path="/login" element={<Login />} />
     </Routes>
   );
 }
