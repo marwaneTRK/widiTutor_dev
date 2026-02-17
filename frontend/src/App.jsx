@@ -1,21 +1,13 @@
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/login";
-
-function Home() {
-  return <h1>Home</h1>;
-}
-
-function About() {
-  return <h1>About</h1>;
-}
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Welcome from "./pages/Welcome";
+import Auth from "./pages/Auth";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<Auth />} />
+      <Route path="/welcome" element={<Welcome />} />
     </Routes>
   );
 }
-
 export default App;

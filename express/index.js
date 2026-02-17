@@ -36,7 +36,7 @@ app.use(limiter);
 // Stronger limiter for auth
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 5,
 });
 
 app.use("/api/auth", authLimiter);
