@@ -109,6 +109,17 @@ export default function Auth() {
             <button className="btn btn-primary w-full">
               {isLogin ? "Login" : "Register"}
             </button>
+            <div className="divider">OR</div>
+
+            <button
+              type="button"
+              onClick={() =>
+                (window.location.href = `${API_URL}/api/auth/google`)
+              }
+              className="btn btn-outline w-full"
+            >
+              Continue with Google
+            </button>
           </form>
 
           {message && (

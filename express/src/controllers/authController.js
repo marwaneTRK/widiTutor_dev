@@ -62,4 +62,30 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const googleCallback = async (req, res) => {
+  try {
+    const user = req.user;
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.redirect(`http://localhost:5173/welcome?token=${token}`);
+  } catch (error) {
+    res.status(500).json({ message: "Google authentication failed" });
+  }
+};
+
+
+
+
+
+module.exports = { register, login, googleCallback };
+
+
+
+
+
+

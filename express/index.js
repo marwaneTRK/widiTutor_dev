@@ -5,7 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
-
+const passport = require("passport");
 const app = express();
 
 // ====== ROUTES IMPORT ======
@@ -21,6 +21,7 @@ app.use(morgan("tiny"));
 
 // Parse JSON
 app.use(express.json());
+require("./src/config/passport");
 
 // ====== RATE LIMITING ======
 
@@ -49,6 +50,16 @@ const allowedOrigins = [
   "https://monapp.com",
   "https://admin.monapp.com",
 ];
+// passport
+
+app.use(require("express-session")({
+  secret: "secret",
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(
   cors({
@@ -94,6 +105,7 @@ mongoose
   });
 
 // ====== START SERVER ======
+console.log("CLIENT ID:", process.env.GOOGLE_CLIENT_ID);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
