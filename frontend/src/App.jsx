@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Welcome from "./pages/Welcome";
-import Auth from "./pages/Auth";
+ 
+import AuthLast from "./pages/authLast";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Auth />} />
+      <Route path="/" element={<AuthLast />} />
       <Route path="/welcome" element={<Welcome />} />
     </Routes>
   );
