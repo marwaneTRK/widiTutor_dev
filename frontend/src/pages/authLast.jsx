@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import logo from "../assets/logo.png";   // ✅
+
 
 export default function AuthLast() {
   const navigate = useNavigate();
@@ -65,6 +67,7 @@ export default function AuthLast() {
 
   return (
     <div className="flex h-screen min-h-[600px]">
+     
 
       {/* ╔══════════════════════════╗
           ║   DIV 1 — LEFT PANEL    ║
@@ -81,9 +84,11 @@ export default function AuthLast() {
       <div className="flex flex-1 flex-col items-center justify-center bg-white px-8 py-12 relative">
 
         {/* ── Logo top-right ── */}
+        <Link to={"/"}>
         <div className="absolute top-6 right-7">
-          <img src="../assests/logo.png" alt="Logo" className="h-8 w-auto" />
+          <img src={logo} alt="Logo" className="h-8 w-auto" />
         </div>
+        </Link>
 
         <div className="w-full max-w-[380px]">
 

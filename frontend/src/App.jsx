@@ -7,6 +7,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<AuthLast />} />
+      
       <Route path="/welcome" element={<Welcome />} />
     </Routes>
   );
