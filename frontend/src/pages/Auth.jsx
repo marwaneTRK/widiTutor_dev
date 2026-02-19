@@ -4,12 +4,16 @@ import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { setAuthToken } from "../utils/auth";
 import logo from "../assets/logo.svg";
+import widiLookingIcon from "../assets/widi_looking_icon.svg";
+import widiSleepingIcon from "../assets/widi_sleeping.svg";
 
 export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isPasswordHovered, setIsPasswordHovered] = useState(false);
   const [form, setForm] = useState({
     name: "",
     lastName: "",
@@ -20,6 +24,8 @@ export default function Auth() {
   const [messageType, setMessageType] = useState("info");
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const isMascotSleeping =
+    isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
   useEffect(() => {
     if (searchParams.get("verified") === "1") {
@@ -88,7 +94,11 @@ export default function Auth() {
           ║   → Marwan's work       ║
           ╚══════════════════════════╝ */}
       <div className="hidden md:flex flex-[0_0_48%] bg-[#ececec] items-center justify-center">
-        {/* Marwan plugs his mascot / branding here */}
+        <img
+          src={isMascotSleeping ? widiSleepingIcon : widiLookingIcon}
+          alt="Widi mascot"
+          className="max-h-[70%] w-auto object-contain transition-all duration-200"
+        />
       </div>
 
       {/* ╔══════════════════════════╗
@@ -173,6 +183,10 @@ export default function Auth() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 onChange={handleChange}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
+                onMouseEnter={() => setIsPasswordHovered(true)}
+                onMouseLeave={() => setIsPasswordHovered(false)}
                 required
                 className="w-full px-3.5 py-3 pr-11 border border-gray-200 rounded-xl text-sm text-gray-900 bg-gray-50 outline-none placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20 transition-all"
               />
