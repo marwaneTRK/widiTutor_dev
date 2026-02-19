@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo_widi.svg";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -28,9 +28,7 @@ export default function Navbar() {
           {/* ── Logo ── */}
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="WidiTutor" className="h-7 w-auto" />
-            <span className="text-[15px] font-semibold text-gray-900 tracking-tight dark:text-gray-100">
-              WidiTutor
-            </span>
+            
           </Link>
 
           {/* ── Center Nav Pills — hidden on mobile ── */}
@@ -62,7 +60,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {/* Get started — hidden on mobile */}
             <button
-              onClick={() => navigate("/authLast")}
+              onClick={() => navigate("/auth")}
               className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium text-gray-800 bg-white border border-gray-300 hover:border-gray-400 hover:shadow-sm transition-all duration-150 dark:bg-neutral-900 dark:text-gray-200 dark:border-neutral-700 dark:hover:border-neutral-500"
             >
               Get started <span className="text-gray-400 dark:text-neutral-500">→</span>

@@ -84,7 +84,7 @@ export default function AuthLast() {
       <div className="flex flex-1 flex-col items-center justify-center bg-white px-8 py-12 relative">
 
         {/* ── Logo top-right ── */}
-        <Link to={"/"}>
+        <Link to={"/welcome"}>
         <div className="absolute top-6 right-7">
           <img src={logo} alt="Logo" className="h-8 w-auto" />
         </div>

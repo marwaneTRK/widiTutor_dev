@@ -1,10 +1,13 @@
 import Navbar from "../layouts/Navbar"
 import Footer from "../layouts/Footer"
+import GridBackground from "../components/GridBackground"
 export default function Welcome() {
   return (
     <>
+   
     <Navbar />  
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
+    <div className="min-h-screen flex items-center justify-center bg-base-200"> 
+      <GridBackground />  
       <div className="text-center">
         <h1 className="text-3xl font-bold">Welcome!</h1>
         <p className="mt-2">You have successfully logged ifefen.</p>
