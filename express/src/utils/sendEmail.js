@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -8,7 +10,26 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = async ({ to, subject, html }) => {
+const DEFAULT_LOGO_PATH = path.resolve(
+  __dirname,
+  "../../../frontend/src/assets/logo.svg"
+);
+const EMAIL_LOGO_PATH = process.env.EMAIL_LOGO_PATH || DEFAULT_LOGO_PATH;
+const EMAIL_LOGO_CID = "widitutor-logo-cid";
+
+const getLogoAttachment = () => {
+  if (!fs.existsSync(EMAIL_LOGO_PATH)) {
+    return null;
+  }
+
+  return {
+    filename: path.basename(EMAIL_LOGO_PATH),
+    path: EMAIL_LOGO_PATH,
+    cid: EMAIL_LOGO_CID,
+  };
+};
+
+const sendEmail = async ({ to, subject, html, attachments = [] }) => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new Error("EMAIL_USER and EMAIL_PASS are required to send emails.");
   }
@@ -18,10 +39,11 @@ const sendEmail = async ({ to, subject, html }) => {
     to,
     subject,
     html,
+    attachments,
   });
 };
 
-const buildVerificationEmailTemplate = ({ verificationUrl, logoUrl }) => `
+const buildVerificationEmailTemplate = ({ verificationUrl, logoCid }) => `
 <!doctype html>
 <html lang="en">
   <head>
@@ -112,7 +134,7 @@ const buildVerificationEmailTemplate = ({ verificationUrl, logoUrl }) => `
     <div class="container">
       <div class="card">
         <div class="logo">
-          <img src="${logoUrl}" alt="WidiTutor logo" />
+          <img src="cid:${logoCid}" alt="WidiTutor logo" />
         </div>
         <h1>Verify Your Email</h1>
         <p>Welcome to WidiTutor. Confirm your email to activate your account and continue your learning journey securely.</p>
@@ -128,12 +150,22 @@ const buildVerificationEmailTemplate = ({ verificationUrl, logoUrl }) => `
 </html>
 `;
 
-const sendVerificationEmail = async ({ to, verificationUrl, logoUrl }) => {
-  const html = buildVerificationEmailTemplate({ verificationUrl, logoUrl });
-  await sendEmail({ to, subject: "Verify your email address", html });
+const sendVerificationEmail = async ({ to, verificationUrl }) => {
+  const html = buildVerificationEmailTemplate({
+    verificationUrl,
+    logoCid: EMAIL_LOGO_CID,
+  });
+  const logoAttachment = getLogoAttachment();
+
+  await sendEmail({
+    to,
+    subject: "Verify your email address",
+    html,
+    attachments: logoAttachment ? [logoAttachment] : [],
+  });
 };
 
-const buildResetPasswordEmailTemplate = ({ resetUrl, logoUrl }) => `
+const buildResetPasswordEmailTemplate = ({ resetUrl, logoCid }) => `
 <!doctype html>
 <html lang="en">
   <head>
@@ -224,7 +256,7 @@ const buildResetPasswordEmailTemplate = ({ resetUrl, logoUrl }) => `
     <div class="container">
       <div class="card">
         <div class="logo">
-          <img src="${logoUrl}" alt="WidiTutor logo" />
+          <img src="cid:${logoCid}" alt="WidiTutor logo" />
         </div>
         <h1>Reset Your Password</h1>
         <p>We received a request to reset your password. Click the button below to set a new one.</p>
@@ -240,9 +272,19 @@ const buildResetPasswordEmailTemplate = ({ resetUrl, logoUrl }) => `
 </html>
 `;
 
-const sendResetPasswordEmail = async ({ to, resetUrl, logoUrl }) => {
-  const html = buildResetPasswordEmailTemplate({ resetUrl, logoUrl });
-  await sendEmail({ to, subject: "Reset your password", html });
+const sendResetPasswordEmail = async ({ to, resetUrl }) => {
+  const html = buildResetPasswordEmailTemplate({
+    resetUrl,
+    logoCid: EMAIL_LOGO_CID,
+  });
+  const logoAttachment = getLogoAttachment();
+
+  await sendEmail({
+    to,
+    subject: "Reset your password",
+    html,
+    attachments: logoAttachment ? [logoAttachment] : [],
+  });
 };
 
 module.exports = {
