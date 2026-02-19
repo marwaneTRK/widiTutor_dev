@@ -8,6 +8,7 @@ const { registerSchema, loginSchema } = require("../validation/authValidation");
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const BACKEND_URL =
   process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+const EMAIL_LOGO_URL = process.env.EMAIL_LOGO_URL || `${BACKEND_URL}/public/logo.svg`;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 const VERIFICATION_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -74,7 +75,11 @@ const register = async (req, res) => {
     }
 
     const verificationUrl = `${BACKEND_URL}/api/auth/verify/${token}`;
-    await sendVerificationEmail({ to: user.email, verificationUrl });
+    await sendVerificationEmail({
+      to: user.email,
+      verificationUrl,
+      logoUrl: EMAIL_LOGO_URL,
+    });
 
     return res.status(201).json({
       message: "Check your email to verify your account",

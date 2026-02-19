@@ -21,7 +21,7 @@ const sendEmail = async ({ to, subject, html }) => {
   });
 };
 
-const buildVerificationEmailTemplate = ({ verificationUrl }) => `
+const buildVerificationEmailTemplate = ({ verificationUrl, logoUrl }) => `
 <!doctype html>
 <html lang="en">
   <head>
@@ -31,58 +31,61 @@ const buildVerificationEmailTemplate = ({ verificationUrl }) => `
     <style>
       body {
         margin: 0;
-        padding: 24px 12px;
-        background: #f3f4f6;
-        font-family: Arial, Helvetica, sans-serif;
-        color: #111827;
+        padding: 20px 10px;
+        background: #f4f7f2;
+        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        color: #1f2937;
       }
       .container {
-        max-width: 560px;
+        max-width: 620px;
         margin: 0 auto;
       }
       .card {
         background: #ffffff;
-        border-radius: 14px;
-        padding: 28px 24px;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+        border-radius: 18px;
+        padding: 34px 28px;
+        border: 1px solid #e7f4df;
+        box-shadow: 0 16px 40px rgba(23, 37, 84, 0.08);
       }
       .logo {
         text-align: center;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
       }
       .logo img {
-        width: 120px;
+        width: 148px;
         height: auto;
       }
       h1 {
         margin: 0 0 10px;
         text-align: center;
-        font-size: 24px;
+        font-size: 28px;
         line-height: 1.25;
       }
       p {
         margin: 0 0 14px;
         text-align: center;
-        line-height: 1.6;
+        line-height: 1.7;
         color: #4b5563;
       }
       .button-wrap {
         text-align: center;
-        margin: 24px 0 16px;
+        margin: 26px 0 16px;
       }
       .button {
         display: inline-block;
-        background: #2563eb;
+        background: #5DD62C;
         color: #ffffff !important;
         text-decoration: none;
         font-weight: 700;
-        padding: 13px 22px;
-        border-radius: 10px;
+        font-size: 15px;
+        padding: 14px 28px;
+        border-radius: 12px;
+        box-shadow: 0 10px 24px rgba(93, 214, 44, 0.35);
       }
       .fallback {
         text-align: left;
         background: #f9fafb;
-        border: 1px solid #e5e7eb;
+        border: 1px dashed #d1d5db;
         border-radius: 10px;
         padding: 12px;
         font-size: 13px;
@@ -97,10 +100,10 @@ const buildVerificationEmailTemplate = ({ verificationUrl }) => `
       }
       @media (max-width: 600px) {
         .card {
-          padding: 22px 16px;
+          padding: 24px 16px;
         }
         h1 {
-          font-size: 21px;
+          font-size: 23px;
         }
       }
     </style>
@@ -109,14 +112,14 @@ const buildVerificationEmailTemplate = ({ verificationUrl }) => `
     <div class="container">
       <div class="card">
         <div class="logo">
-          <img src="https://via.placeholder.com/150" alt="WidiTutor logo" />
+          <img src="${logoUrl}" alt="WidiTutor logo" />
         </div>
-        <h1>Welcome to WidiTutor</h1>
-        <p>Thanks for signing up. Please verify your email address to activate your account and start learning.</p>
+        <h1>Verify Your Email</h1>
+        <p>Welcome to WidiTutor. Confirm your email to activate your account and continue your learning journey securely.</p>
         <div class="button-wrap">
           <a class="button" href="${verificationUrl}" target="_blank" rel="noopener noreferrer">Verify Email</a>
         </div>
-        <p>If the button does not work, copy and paste this link in your browser:</p>
+        <p>If the button does not work, use this link:</p>
         <div class="fallback">${verificationUrl}</div>
         <div class="footer">This link expires in 1 hour for your security.</div>
       </div>
@@ -125,8 +128,8 @@ const buildVerificationEmailTemplate = ({ verificationUrl }) => `
 </html>
 `;
 
-const sendVerificationEmail = async ({ to, verificationUrl }) => {
-  const html = buildVerificationEmailTemplate({ verificationUrl });
+const sendVerificationEmail = async ({ to, verificationUrl, logoUrl }) => {
+  const html = buildVerificationEmailTemplate({ verificationUrl, logoUrl });
   await sendEmail({ to, subject: "Verify your email address", html });
 };
 

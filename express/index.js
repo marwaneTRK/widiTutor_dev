@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const path = require("path");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 const passport = require("passport");
@@ -26,6 +27,7 @@ require("./src/config/passport");
 app.use(helmet());
 app.use(morgan("tiny"));
 app.use(express.json());
+app.use("/public", express.static(path.join(__dirname, "../frontend/src/assets")));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

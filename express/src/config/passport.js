@@ -2,8 +2,13 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../model/User");
 
-const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback";
+const BACKEND_URL =
+  process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL
+  ? process.env.GOOGLE_CALLBACK_URL.startsWith("http")
+    ? process.env.GOOGLE_CALLBACK_URL
+    : `${BACKEND_URL}${process.env.GOOGLE_CALLBACK_URL}`
+  : `${BACKEND_URL}/api/auth/google/callback`;
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
