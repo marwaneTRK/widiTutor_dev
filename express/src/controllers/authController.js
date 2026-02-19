@@ -2,8 +2,13 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const User = require("../model/User");
-const { sendVerificationEmail } = require("../utils/sendEmail");
-const { registerSchema, loginSchema } = require("../validation/authValidation");
+const { sendVerificationEmail, sendResetPasswordEmail } = require("../utils/sendEmail");
+const {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} = require("../validation/authValidation");
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const BACKEND_URL =
@@ -11,6 +16,7 @@ const BACKEND_URL =
 const EMAIL_LOGO_URL = process.env.EMAIL_LOGO_URL || `${BACKEND_URL}/public/logo.svg`;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 const VERIFICATION_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+const RESET_PASSWORD_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
 
@@ -22,6 +28,11 @@ const signAuthToken = (user) =>
 const createVerificationPayload = () => ({
   token: crypto.randomBytes(32).toString("hex"),
   expiresAt: new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS),
+});
+
+const createResetPasswordPayload = () => ({
+  token: crypto.randomBytes(32).toString("hex"),
+  expiresAt: new Date(Date.now() + RESET_PASSWORD_TOKEN_TTL_MS),
 });
 
 const sanitizeUser = (user) => ({
@@ -134,6 +145,74 @@ const login = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { error, value } = forgotPasswordSchema.validate(req.body, {
+      abortEarly: true,
+      stripUnknown: true,
+    });
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const email = normalizeEmail(value.email);
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "No account found with this email." });
+    }
+
+    const { token, expiresAt } = createResetPasswordPayload();
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expiresAt;
+    await user.save();
+
+    const resetUrl = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}`;
+    await sendResetPasswordEmail({
+      to: user.email,
+      resetUrl,
+      logoUrl: EMAIL_LOGO_URL,
+    });
+
+    return res.status(200).json({ message: "Reset link sent successfully." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { error, value } = resetPasswordSchema.validate(req.body, {
+      abortEarly: true,
+      stripUnknown: true,
+    });
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { token, newPassword } = value;
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "Password has been reset successfully." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
@@ -200,6 +279,8 @@ const me = async (req, res) => {
 module.exports = {
   register,
   login,
+  forgotPassword,
+  resetPassword,
   verifyEmail,
   googleCallback,
   me,

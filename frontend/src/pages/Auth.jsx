@@ -192,7 +192,7 @@ export default function Auth() {
 
             {/* Privacy — Register only */}
             {!isLogin && (
-              <p className="text-xs text-gray-400 leading-relaxed pt-1">
+              <p className="text-xs text-gray-400 leading-relaxed pt-1 text-center">
                 By creating an account you agreeing to our{" "}
                 <a
                   href="#"
@@ -211,6 +211,18 @@ export default function Auth() {
             >
               {isLogin ? "Login" : "Sign Up"}
             </button>
+
+            {isLogin && (
+              <div className="text-right pt-1">
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-sm text-gray-500 hover:text-[#3ecf3e] transition-colors cursor-pointer"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </form>
 
           {/* ── Feedback message ── */}
