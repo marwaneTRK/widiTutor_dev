@@ -63,3 +63,13 @@ You should see a JSON response with `status` and `version`.
 - Public: `GET /`, `GET /health`
 - Internal (HMAC required): `/internal/*`
 
+
+## Docker
+
+From project root:
+
+```bash
+docker compose up --build
+```
+
+This FastAPI service is exposed on `http://localhost:8000`.

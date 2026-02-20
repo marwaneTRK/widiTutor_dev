@@ -1,4 +1,22 @@
 services:
+  fastapi:
+    build:
+      context: ./fastapi
+      dockerfile: Dockerfile
+    env_file:
+      - ./fastapi/.env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - mern-network
+
   backend:
     build:
       context: ./express
@@ -7,9 +25,19 @@ services:
       - ./express/.env
     environment:
       NODE_ENV: production
+      FASTAPI_INTERNAL_URL: http://fastapi:8000
+    depends_on:
+      fastapi:
+        condition: service_healthy
     ports:
       - "5000:5000"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks:
       - mern-network
 
@@ -20,7 +48,8 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "3000:80"
     restart: unless-stopped
