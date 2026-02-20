@@ -18,21 +18,32 @@ const VERIFICATION_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 const RESET_PASSWORD_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+const randomDelay = () =>
+  new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 100) + 50));
 
 const signAuthToken = (user) =>
   jwt.sign({ id: user._id.toString(), email: user.email }, process.env.JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 
-const createVerificationPayload = () => ({
-  token: crypto.randomBytes(32).toString("hex"),
-  expiresAt: new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS),
-});
+const createVerificationPayload = () => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  return {
+    rawToken,
+    hashedToken: hashToken(rawToken),
+    expiresAt: new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS),
+  };
+};
 
-const createResetPasswordPayload = () => ({
-  token: crypto.randomBytes(32).toString("hex"),
-  expiresAt: new Date(Date.now() + RESET_PASSWORD_TOKEN_TTL_MS),
-});
+const createResetPasswordPayload = () => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  return {
+    rawToken,
+    hashedToken: hashToken(rawToken),
+    expiresAt: new Date(Date.now() + RESET_PASSWORD_TOKEN_TTL_MS),
+  };
+};
 
 const sanitizeUser = (user) => ({
   id: user._id,
@@ -40,6 +51,9 @@ const sanitizeUser = (user) => ({
   lastName: user.lastName,
   email: user.email,
 });
+
+const FORGOT_PASSWORD_RESPONSE_MESSAGE =
+  "If an account with that email exists, a reset link has been sent.";
 
 // Register user and send expiring verification email.
 const register = async (req, res) => {
@@ -61,7 +75,7 @@ const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { token, expiresAt } = createVerificationPayload();
+    const { rawToken, hashedToken, expiresAt } = createVerificationPayload();
 
     let user = existingUser;
     if (!user) {
@@ -71,7 +85,7 @@ const register = async (req, res) => {
         email,
         password: hashedPassword,
         isVerified: false,
-        verificationToken: token,
+        verificationToken: hashedToken,
         verificationTokenExpires: expiresAt,
       });
     } else {
@@ -79,12 +93,12 @@ const register = async (req, res) => {
       user.lastName = lastName;
       user.password = hashedPassword;
       user.isVerified = false;
-      user.verificationToken = token;
+      user.verificationToken = hashedToken;
       user.verificationTokenExpires = expiresAt;
       await user.save();
     }
 
-    const verificationUrl = `${BACKEND_URL}/api/auth/verify/${token}`;
+    const verificationUrl = `${BACKEND_URL}/api/auth/verify/${rawToken}`;
     await sendVerificationEmail({
       to: user.email,
       verificationUrl,
@@ -116,15 +130,29 @@ const login = async (req, res) => {
     const { password } = value;
     const user = await User.findOne({ email }).select("+password");
 
+    if (user?.isLocked) {
+      return res.status(423).json({
+        message: "Account temporarily locked due to too many failed login attempts.",
+        lockUntil: user.lockUntil,
+      });
+    }
+
     if (!user || !user.password) {
+      if (user) {
+        await user.incLoginAttempts();
+      }
+      await randomDelay();
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      await user.incLoginAttempts();
+      await randomDelay();
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    await user.resetLoginAttempts();
     if (!user.isVerified) {
       return res
         .status(401)
@@ -157,21 +185,21 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ message: "No account found with this email." });
+      return res.status(200).json({ message: FORGOT_PASSWORD_RESPONSE_MESSAGE });
     }
 
-    const { token, expiresAt } = createResetPasswordPayload();
-    user.resetPasswordToken = token;
+    const { rawToken, hashedToken, expiresAt } = createResetPasswordPayload();
+    user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = expiresAt;
     await user.save();
 
-    const resetUrl = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}`;
-      await sendResetPasswordEmail({
-        to: user.email,
-        resetUrl,
-      });
+    const resetUrl = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(rawToken)}`;
+    await sendResetPasswordEmail({
+      to: user.email,
+      resetUrl,
+    });
 
-    return res.status(200).json({ message: "Reset link sent successfully." });
+    return res.status(200).json({ message: FORGOT_PASSWORD_RESPONSE_MESSAGE });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -189,9 +217,10 @@ const resetPassword = async (req, res) => {
     }
 
     const { token, newPassword } = value;
+    const hashedToken = hashToken(token);
     const user = await User.findOne({
-      resetPasswordToken: token,
       resetPasswordExpires: { $gt: new Date() },
+      $or: [{ resetPasswordToken: hashedToken }, { resetPasswordToken: token }],
     }).select("+password");
 
     if (!user) {
@@ -199,6 +228,7 @@ const resetPassword = async (req, res) => {
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordChangedAt = new Date();
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
@@ -213,7 +243,10 @@ const resetPassword = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    const user = await User.findOne({ verificationToken: token });
+    const hashedToken = hashToken(token);
+    const user = await User.findOne({
+      $or: [{ verificationToken: hashedToken }, { verificationToken: token }],
+    });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid verification token." });

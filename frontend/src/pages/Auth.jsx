@@ -6,6 +6,7 @@ import { setAuthToken } from "../utils/auth";
 import logo from "../assets/logo.svg";
 import widiLookingIcon from "../assets/widi_looking_icon.svg";
 import widiSleepingIcon from "../assets/widi_sleeping.svg";
+import blurEffect from "../assets/blur.svg";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -93,11 +94,17 @@ export default function Auth() {
           ║   DIV 1 — LEFT PANEL    ║
           ║   → Marwan's work       ║
           ╚══════════════════════════╝ */}
-      <div className="hidden md:flex flex-[0_0_48%] bg-[#ececec] items-center justify-center">
+      <div className="hidden md:flex relative isolate overflow-hidden flex-[0_0_48%] bg-[#ececec] items-center justify-center">
+        <img
+          src={blurEffect}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 w-[78%] max-w-[620px] -translate-x-1/2 -translate-y-1/2 opacity-70"
+        />
         <img
           src={isMascotSleeping ? widiSleepingIcon : widiLookingIcon}
           alt="Widi mascot"
-          className="max-h-[70%] w-auto object-contain transition-all duration-200"
+          className="relative z-10 max-h-[70%] w-auto object-contain transition-all duration-200"
         />
       </div>
 
