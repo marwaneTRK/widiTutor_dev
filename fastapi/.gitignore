@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env
+
+# Distribution/build
+build/
+dist/
+*.egg-info/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# env example shouldn't be ignored if needed, but exclude secrets
+.env.*
+
+# FastAPI/ASGI
+__pypackages__/
+
+# Misc
+*.bak
+*~
+.DS_Store
+
+# macOS
+*.DS_Store
+
+# Windows
+Thumbs.db
+
+

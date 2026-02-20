@@ -44,10 +44,47 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
     },
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    lockUntil: {
+      type: Date,
+    },
+    passwordChangedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
 
 userSchema.index({ email: 1 }, { unique: true });
+
+userSchema.virtual("isLocked").get(function isLocked() {
+  return Boolean(this.lockUntil && this.lockUntil > Date.now());
+});
+
+userSchema.methods.incLoginAttempts = async function incLoginAttempts() {
+  if (this.lockUntil && this.lockUntil < Date.now()) {
+    return this.updateOne({
+      $set: { failedLoginAttempts: 1 },
+      $unset: { lockUntil: 1 },
+    });
+  }
+
+  const updates = { $inc: { failedLoginAttempts: 1 } };
+  if (this.failedLoginAttempts + 1 >= 5 && !this.isLocked) {
+    updates.$set = { lockUntil: Date.now() + 60 * 60 * 1000 };
+  }
+
+  return this.updateOne(updates);
+};
+
+userSchema.methods.resetLoginAttempts = async function resetLoginAttempts() {
+  return this.updateOne({
+    $set: { failedLoginAttempts: 0 },
+    $unset: { lockUntil: 1 },
+  });
+};
 
 module.exports = mongoose.model("User", userSchema);
