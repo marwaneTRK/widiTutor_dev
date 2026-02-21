@@ -10,7 +10,7 @@ const {
   resetPasswordSchema,
 } = require("../validation/authValidation");
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const CLIENT_URL = process.env.CLIENT_URL || process.env.FRONTEND_URL || "http://localhost:5173";
 const BACKEND_URL =
   process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
@@ -193,7 +193,7 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = expiresAt;
     await user.save();
 
-    const resetUrl = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(rawToken)}`;
+    const resetUrl = `${CLIENT_URL}/reset-password?token=${encodeURIComponent(rawToken)}`;
     await sendResetPasswordEmail({
       to: user.email,
       resetUrl,
@@ -261,7 +261,8 @@ const verifyEmail = async (req, res) => {
     user.verificationTokenExpires = undefined;
     await user.save();
 
-    return res.redirect(`${FRONTEND_URL}/?verified=1`);
+    const jwtToken = signAuthToken(user);
+    return res.redirect(`${CLIENT_URL}/welcome?token=${encodeURIComponent(jwtToken)}`);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Verification failed." });
@@ -283,7 +284,7 @@ const googleCallback = async (req, res) => {
     }
 
     const token = signAuthToken(user);
-    return res.redirect(`${FRONTEND_URL}/welcome?token=${encodeURIComponent(token)}`);
+    return res.redirect(`${CLIENT_URL}/welcome?token=${encodeURIComponent(token)}`);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Google authentication failed" });
