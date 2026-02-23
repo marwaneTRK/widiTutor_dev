@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "../assets/logo_widi.svg";
+import logo from "../assets/logo_origin.svg";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
@@ -25,6 +25,9 @@ export default function Footer() {
       <div className="mb-6">
         <Link to="/" className="flex items-center gap-2 w-fit">
           <img src={logo} alt="WidiTutor" className="h-8 w-auto" />
+          <span className="text-[15px] font-bold text-gray-800 dark:text-gray-100 tracking-tight">
+          WidiTutor
+        </span>
           
         </Link>
       </div>

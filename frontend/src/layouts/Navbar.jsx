@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useState } from "react";
-import logo from "../assets/logo_widi.svg";
+import logo from "../assets/logo_origin.svg";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -22,12 +22,15 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 dark:bg-neutral-950 dark:border-neutral-800">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 dark:bg-neutral-950 dark:border-neutral-800">
         <div className="flex items-center justify-between px-5 h-[60px]">
 
           {/* ── Logo ── */}
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="WidiTutor" className="h-7 w-auto" />
+            <span className="text-[15px] font-bold text-gray-800 dark:text-gray-100 tracking-tight">
+          WidiTutor
+        </span>
             
           </Link>
 
