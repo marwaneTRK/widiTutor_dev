@@ -17,6 +17,31 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    domain: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    studies: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    progressGoals: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    profilePicture: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    profilePicturePublicId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
     password: {
       type: String,
       minlength: 8,
