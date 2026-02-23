@@ -63,8 +63,8 @@ const sanitizeUser = (user) => ({
   isVerified: user.isVerified,
 });
 
-const FORGOT_PASSWORD_RESPONSE_MESSAGE =
-  "If an account with that email exists, a reset link has been sent.";
+const FORGOT_PASSWORD_SUCCESS_MESSAGE = "A reset link has been sent to your email.";
+const FORGOT_PASSWORD_NOT_FOUND_MESSAGE = "No account exists with this email.";
 
 // Register user and send expiring verification email.
 const register = async (req, res) => {
@@ -196,7 +196,7 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(200).json({ message: FORGOT_PASSWORD_RESPONSE_MESSAGE });
+      return res.status(404).json({ message: FORGOT_PASSWORD_NOT_FOUND_MESSAGE });
     }
 
     const { rawToken, hashedToken, expiresAt } = createResetPasswordPayload();
@@ -210,7 +210,7 @@ const forgotPassword = async (req, res) => {
       resetUrl,
     });
 
-    return res.status(200).json({ message: FORGOT_PASSWORD_RESPONSE_MESSAGE });
+    return res.status(200).json({ message: FORGOT_PASSWORD_SUCCESS_MESSAGE });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
