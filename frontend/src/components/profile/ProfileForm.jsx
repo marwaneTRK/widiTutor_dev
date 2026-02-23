@@ -7,6 +7,7 @@ export default function ProfileForm({
   onSubmit,
   saving,
   message,
+  canChangePassword,
   showCurrentPassword,
   showNewPassword,
   onToggleCurrentPassword,
@@ -15,8 +16,8 @@ export default function ProfileForm({
   return (
     <form onSubmit={onSubmit} className="p-6">
       <p className="mb-6 rounded-lg border border-[#d8e1db] bg-white px-3 py-2 text-sm text-[#4a5b50]">
-        Editable fields: first name, last name, domain, studies, email, profile picture, and
-        password.
+        Editable fields: first name, last name, domain, studies, email, and profile picture.
+        {canChangePassword ? " Password can be updated in this account." : " Password is managed by Google sign-in."}
       </p>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -111,46 +112,48 @@ export default function ProfileForm({
         </label>
       </div>
 
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <label className="block">
-          <span className="mb-1 block text-sm text-[#848a86]">Current Password</span>
-          <div className="relative">
-            <input
-              type={showCurrentPassword ? "text" : "password"}
-              value={form.currentPassword}
-              onChange={onFieldChange("currentPassword")}
-              className="h-12 w-full rounded-xl border border-[#66ba6c] bg-[#edf1ee] px-4 pr-12 text-[17px] outline-none focus:bg-white"
-              placeholder="Enter current password"
-            />
-            <button
-              type="button"
-              onClick={onToggleCurrentPassword}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7b8880]"
-            >
-              {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm text-[#848a86]">New Password</span>
-          <div className="relative">
-            <input
-              type={showNewPassword ? "text" : "password"}
-              value={form.newPassword}
-              onChange={onFieldChange("newPassword")}
-              className="h-12 w-full rounded-xl border border-[#66ba6c] bg-[#edf1ee] px-4 pr-12 text-[17px] outline-none focus:bg-white"
-              placeholder="Enter new password"
-            />
-            <button
-              type="button"
-              onClick={onToggleNewPassword}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7b8880]"
-            >
-              {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        </label>
-      </div>
+      {canChangePassword ? (
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#848a86]">Current Password</span>
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={form.currentPassword}
+                onChange={onFieldChange("currentPassword")}
+                className="h-12 w-full rounded-xl border border-[#66ba6c] bg-[#edf1ee] px-4 pr-12 text-[17px] outline-none focus:bg-white"
+                placeholder="Enter current password"
+              />
+              <button
+                type="button"
+                onClick={onToggleCurrentPassword}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7b8880]"
+              >
+                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-sm text-[#848a86]">New Password</span>
+            <div className="relative">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                value={form.newPassword}
+                onChange={onFieldChange("newPassword")}
+                className="h-12 w-full rounded-xl border border-[#66ba6c] bg-[#edf1ee] px-4 pr-12 text-[17px] outline-none focus:bg-white"
+                placeholder="Enter new password"
+              />
+              <button
+                type="button"
+                onClick={onToggleNewPassword}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7b8880]"
+              >
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </label>
+        </div>
+      ) : null}
 
       <button
         type="submit"

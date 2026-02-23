@@ -15,6 +15,7 @@ export default function Profile() {
     saving,
     message,
     form,
+    canChangePassword,
     displayName,
     profilePictureUrl,
     showCurrentPassword,
@@ -65,6 +66,7 @@ export default function Profile() {
               onSubmit={submitProfile}
               saving={saving}
               message={message}
+              canChangePassword={canChangePassword}
               showCurrentPassword={showCurrentPassword}
               showNewPassword={showNewPassword}
               onToggleCurrentPassword={() => setShowCurrentPassword((prev) => !prev)}
