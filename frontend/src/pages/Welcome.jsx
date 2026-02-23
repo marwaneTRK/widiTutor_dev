@@ -419,9 +419,14 @@ export default function Welcome() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-white px-3 py-1 text-sm font-medium shadow-sm">
+            <button
+              type="button"
+              onClick={() => navigate("/profile")}
+              className="rounded-full bg-white px-3 py-1 text-sm font-medium shadow-sm transition hover:bg-[#f2f7f3]"
+              title="Edit profile"
+            >
               {currentUser.name}
-            </div>
+            </button>
             <button
               type="button"
               onClick={handleLogout}

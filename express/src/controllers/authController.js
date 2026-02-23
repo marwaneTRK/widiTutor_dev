@@ -4,10 +4,16 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/User");
 const { sendVerificationEmail, sendResetPasswordEmail } = require("../utils/sendEmail");
 const {
+  uploadProfilePicture: uploadProfilePictureToCloudinary,
+  deleteImageByPublicId,
+} = require("../services/cloudinaryService");
+const {
   registerSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  updateProfileSchema,
+  changePasswordSchema,
 } = require("../validation/authValidation");
 
 const CLIENT_URL = process.env.CLIENT_URL || process.env.FRONTEND_URL || "http://localhost:5173";
@@ -50,6 +56,11 @@ const sanitizeUser = (user) => ({
   name: user.name,
   lastName: user.lastName,
   email: user.email,
+  domain: user.domain || "",
+  studies: user.studies || "",
+  progressGoals: user.progressGoals || "",
+  profilePicture: user.profilePicture || null,
+  isVerified: user.isVerified,
 });
 
 const FORGOT_PASSWORD_RESPONSE_MESSAGE =
@@ -294,7 +305,7 @@ const googleCallback = async (req, res) => {
 const me = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "name lastName email isVerified googleId createdAt updatedAt"
+      "name lastName email domain studies progressGoals profilePicture isVerified googleId createdAt updatedAt"
     );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -307,6 +318,160 @@ const me = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select(
+      "name lastName email domain studies progressGoals profilePicture profilePicturePublicId isVerified"
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hasBodyFields =
+      Object.prototype.hasOwnProperty.call(req.body, "name") ||
+      Object.prototype.hasOwnProperty.call(req.body, "lastName") ||
+      Object.prototype.hasOwnProperty.call(req.body, "email") ||
+      Object.prototype.hasOwnProperty.call(req.body, "domain") ||
+      Object.prototype.hasOwnProperty.call(req.body, "studies") ||
+      Object.prototype.hasOwnProperty.call(req.body, "progressGoals");
+
+    let nextEmail = null;
+    if (hasBodyFields) {
+      const { error, value } = updateProfileSchema.validate(req.body, {
+        abortEarly: true,
+        stripUnknown: true,
+      });
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
+      }
+
+      if (Object.prototype.hasOwnProperty.call(value, "name")) {
+        user.name = value.name;
+      }
+      if (Object.prototype.hasOwnProperty.call(value, "lastName")) {
+        user.lastName = value.lastName;
+      }
+      if (Object.prototype.hasOwnProperty.call(value, "email")) {
+        nextEmail = normalizeEmail(value.email);
+      }
+      if (Object.prototype.hasOwnProperty.call(value, "domain")) {
+        user.domain = value.domain;
+      }
+      if (Object.prototype.hasOwnProperty.call(value, "studies")) {
+        user.studies = value.studies;
+      }
+      if (Object.prototype.hasOwnProperty.call(value, "progressGoals")) {
+        user.progressGoals = value.progressGoals;
+      }
+    }
+
+    if (nextEmail && nextEmail !== user.email) {
+      const existingUser = await User.findOne({ email: nextEmail, _id: { $ne: user._id } });
+      if (existingUser) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+      user.email = nextEmail;
+    }
+
+    let previousPublicId = null;
+    let newPicturePublicId = null;
+    if (req.file) {
+      const uploadResult = await uploadProfilePictureToCloudinary({
+        buffer: req.file.buffer,
+        mimetype: req.file.mimetype,
+        userId: user._id.toString(),
+      });
+
+      previousPublicId = user.profilePicturePublicId || null;
+      newPicturePublicId = uploadResult.publicId;
+      user.profilePicture = uploadResult.url;
+      user.profilePicturePublicId = uploadResult.publicId;
+    }
+
+    await user.save();
+
+    if (previousPublicId && previousPublicId !== newPicturePublicId) {
+      try {
+        await deleteImageByPublicId(previousPublicId);
+      } catch (error) {
+        console.error("Failed to delete previous Cloudinary profile picture:", error);
+      }
+    }
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to update profile" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { error, value } = changePasswordSchema.validate(req.body, {
+      abortEarly: true,
+      stripUnknown: true,
+    });
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const { currentPassword, newPassword } = value;
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: "New password must be different from current password." });
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({
+        message: "Password change is unavailable for this account. Use reset password flow first.",
+      });
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordChangedAt = new Date();
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to update password" });
+  }
+};
+
+const deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("profilePicturePublicId");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.profilePicturePublicId) {
+      const deleted = await deleteImageByPublicId(user.profilePicturePublicId);
+      if (!deleted) {
+        return res.status(502).json({ message: "Failed to delete profile image from Cloudinary" });
+      }
+    }
+
+    await User.deleteOne({ _id: user._id });
+    return res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to delete account" });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -315,4 +480,7 @@ module.exports = {
   verifyEmail,
   googleCallback,
   me,
+  updateProfile,
+  changePassword,
+  deleteAccount,
 };
