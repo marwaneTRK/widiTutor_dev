@@ -43,6 +43,7 @@ export default function useProfileController({ navigate, fallbackProfilePicture 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [canChangePassword, setCanChangePassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
@@ -86,6 +87,9 @@ export default function useProfileController({ navigate, fallbackProfilePicture 
         }
 
         if (data?.user) {
+          const isGoogleUser = Boolean(data.user.googleId);
+          const isVerified = Boolean(data.user.isVerified);
+          setCanChangePassword(isVerified && !isGoogleUser);
           setForm((prev) => ({
             ...prev,
             ...mapUserToForm(data.user),
@@ -179,7 +183,8 @@ export default function useProfileController({ navigate, fallbackProfilePicture 
 
       let passwordMessage = "";
       const wantsPasswordUpdate =
-        form.currentPassword.trim().length > 0 || form.newPassword.trim().length > 0;
+        canChangePassword &&
+        (form.currentPassword.trim().length > 0 || form.newPassword.trim().length > 0);
 
       if (wantsPasswordUpdate) {
         if (!form.currentPassword.trim() || !form.newPassword.trim()) {
@@ -265,6 +270,7 @@ export default function useProfileController({ navigate, fallbackProfilePicture 
     saving,
     message,
     form,
+    canChangePassword,
     displayName,
     profilePictureUrl,
     showCurrentPassword,
