@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { clearAuthToken, getAuthToken, setAuthToken } from "../utils/auth";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { fetchCurrentUser } from "../services/authService";
 
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
@@ -32,11 +31,7 @@ export default function ProtectedRoute({ children }) {
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${effectiveToken}`,
-          },
-        });
+        const { response } = await fetchCurrentUser(effectiveToken);
 
         if (!isMounted) {
           return;
