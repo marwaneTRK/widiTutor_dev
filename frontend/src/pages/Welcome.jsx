@@ -11,29 +11,17 @@ import {
   Sparkles,
 } from "lucide-react";
 import { clearAuthToken, getAuthToken, setAuthToken } from "../utils/auth";
+import { DEFAULT_SUGGESTIONS, DEFAULT_VIDEO_QUERY } from "../constants/welcome";
+import {
+  fetchTranscript as fetchTranscriptRequest,
+  generateQuiz as generateQuizRequest,
+  generateSummary as generateSummaryRequest,
+  searchVideos as searchVideosRequest,
+  sendChat,
+} from "../services/aiService";
+import { fetchCurrentUser as fetchCurrentUserRequest } from "../services/authService";
+import { extractApiError, parseJsonSafely } from "../services/http";
 import logo from "../assets/logo.svg";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const DEFAULT_VIDEO_QUERY = "learn python fast";
-const DEFAULT_SUGGESTIONS = [
-  "Explain this topic in simple terms",
-  "Give me practice questions",
-  "Give me a short summary",
-];
-
-const extractError = async (response, fallbackMessage) => {
-  try {
-    const data = await response.json();
-    return data?.error || data?.message || fallbackMessage;
-  } catch (error) {
-    return fallbackMessage;
-  }
-};
-
-const buildAuthHeaders = (token) => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${token}`,
-});
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -98,13 +86,8 @@ export default function Welcome() {
 
   const fetchCurrentUser = useCallback(async (authToken) => {
     try {
-      const response = await fetch(`${API_URL}/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      const { response, data } = await fetchCurrentUserRequest(authToken);
       if (!response.ok) return;
-      const data = await response.json();
       if (data?.user) {
         setCurrentUser({
           name: data.user.name || "Student",
@@ -124,24 +107,16 @@ export default function Welcome() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${API_URL}/api/get-transcript`, {
-        method: "POST",
-        headers: buildAuthHeaders(authToken),
-        body: JSON.stringify({ video_id: videoId }),
-      });
+      const { response, data } = await fetchTranscriptRequest(authToken, videoId);
 
       if (!response.ok) {
-        const message = await extractError(
-          response,
-          "Failed to fetch transcript.",
-        );
+        const message = extractApiError(data, "Failed to fetch transcript.");
         setErrorMessage(message);
         setTranscript("");
         setTranscriptMeta(null);
         return;
       }
 
-      const data = await response.json();
       setTranscript(data?.transcript || "");
       setTranscriptMeta({
         method: data?.method || "unknown",
@@ -170,20 +145,15 @@ export default function Welcome() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(`${API_URL}/api/search-videos`, {
-          method: "POST",
-          headers: buildAuthHeaders(authToken),
-          body: JSON.stringify({ query, max_results: 10 }),
-        });
+        const { response, data } = await searchVideosRequest(authToken, query, 10);
 
         if (!response.ok) {
-          const message = await extractError(response, "Video search failed.");
+          const message = extractApiError(data, "Video search failed.");
           setErrorMessage(message);
           setVideos([]);
           return;
         }
 
-        const data = await response.json();
         const list = Array.isArray(data) ? data : [];
         setVideos(list);
 
@@ -213,22 +183,14 @@ export default function Welcome() {
     setSummaryLoading(true);
     setErrorMessage("");
     try {
-      const response = await fetch(`${API_URL}/api/generate-summary`, {
-        method: "POST",
-        headers: buildAuthHeaders(authToken),
-        body: JSON.stringify({ transcript }),
-      });
+      const { response, data } = await generateSummaryRequest(authToken, transcript);
 
       if (!response.ok) {
-        const message = await extractError(
-          response,
-          "Summary generation failed.",
-        );
+        const message = extractApiError(data, "Summary generation failed.");
         setErrorMessage(message);
         return;
       }
 
-      const data = await response.json();
       setSummary(data?.summary || "");
     } catch (error) {
       console.error("Summary request failed:", error);
@@ -250,19 +212,14 @@ export default function Welcome() {
     setQuizLoading(true);
     setErrorMessage("");
     try {
-      const response = await fetch(`${API_URL}/api/generate-quiz`, {
-        method: "POST",
-        headers: buildAuthHeaders(authToken),
-        body: JSON.stringify({ transcript }),
-      });
+      const { response, data } = await generateQuizRequest(authToken, transcript);
 
       if (!response.ok) {
-        const message = await extractError(response, "Quiz generation failed.");
+        const message = extractApiError(data, "Quiz generation failed.");
         setErrorMessage(message);
         return;
       }
 
-      const data = await response.json();
       setQuiz(Array.isArray(data?.quiz) ? data.quiz : []);
     } catch (error) {
       console.error("Quiz request failed:", error);
@@ -308,21 +265,18 @@ export default function Welcome() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(`${API_URL}/api/chat`, {
-          method: "POST",
-          headers: buildAuthHeaders(authToken),
-          body: JSON.stringify({
-            messages: payloadMessages,
-            userContext: {
-              id: authToken.slice(0, 12),
-              name: currentUser.name || "Student",
-              email: currentUser.email || "",
-            },
-          }),
+        const response = await sendChat(authToken, {
+          messages: payloadMessages,
+          userContext: {
+            id: authToken.slice(0, 12),
+            name: currentUser.name || "Student",
+            email: currentUser.email || "",
+          },
         });
 
         if (!response.ok) {
-          const message = await extractError(response, "Chat request failed.");
+          const data = await parseJsonSafely(response);
+          const message = extractApiError(data, "Chat request failed.");
           setErrorMessage(message);
           setChatMessages((prev) =>
             prev.map((msg) =>

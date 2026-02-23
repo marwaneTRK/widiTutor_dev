@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { setAuthToken } from "../utils/auth";
+import { getGoogleAuthUrl, loginUser, registerUser } from "../services/authService";
+import { extractApiError } from "../services/http";
 import logo from "../assets/logo.svg";
 import widiLookingIcon from "../assets/widi_looking_icon.svg";
 import widiSleepingIcon from "../assets/widi_sleeping.svg";
@@ -24,7 +26,6 @@ export default function Auth() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const isMascotSleeping =
     isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
@@ -40,49 +41,41 @@ export default function Auth() {
     }
   }, [searchParams]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async (event) => {
+    event.preventDefault();
     try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      setMessage(data.message);
-      setMessageType(res.ok ? "success" : "error");
-      if (res.ok) setIsLogin(true);
-    } catch (err) {
-      console.error(err);
+      const { response, data } = await registerUser(form);
+      setMessage(extractApiError(data, "Registration request completed."));
+      setMessageType(response.ok ? "success" : "error");
+      if (response.ok) {
+        setIsLogin(true);
+      }
+    } catch (error) {
+      console.error(error);
       setMessage("Error registering");
       setMessageType("error");
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (event) => {
+    event.preventDefault();
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-        }),
+      const { response, data } = await loginUser({
+        email: form.email,
+        password: form.password,
       });
-      const data = await res.json();
-      setMessage(data.message || "Logged in successfully");
-      setMessageType(res.ok ? "success" : "error");
-      if (res.ok && data.token) {
+      setMessage(extractApiError(data, "Login request completed."));
+      setMessageType(response.ok ? "success" : "error");
+      if (response.ok && data?.token) {
         setAuthToken(data.token);
         navigate("/welcome");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       setMessage("Error logging in");
       setMessageType("error");
     }
@@ -90,11 +83,7 @@ export default function Auth() {
 
   return (
     <div className="flex h-screen min-h-[600px]">
-      {/* ╔══════════════════════════╗
-          ║   DIV 1 — LEFT PANEL    ║
-          ║   → Marwan's work       ║
-          ╚══════════════════════════╝ */}
-      <div className="hidden md:flex relative isolate overflow-hidden flex-[0_0_48%] bg-[#ececec] items-center justify-center">
+      <div className="relative isolate hidden flex-[0_0_48%] items-center justify-center overflow-hidden bg-[#ececec] md:flex">
         <img
           src={blurEffect}
           alt=""
@@ -108,52 +97,35 @@ export default function Auth() {
         />
       </div>
 
-      {/* ╔══════════════════════════╗
-          ║  DIV 2 — RIGHT PANEL    ║
-          ║  → Form                 ║
-          ╚══════════════════════════╝ */}
-      <div className="flex flex-1 flex-col items-center justify-center bg-white px-8 py-12 relative">
-        {/* ── Logo top-right ── */}
-        <div className="absolute top-6 right-7">
+      <div className="relative flex flex-1 flex-col items-center justify-center bg-white px-8 py-12">
+        <div className="absolute right-7 top-6">
           <img src={logo} alt="Logo" className="h-8 w-auto" />
         </div>
 
         <div className="w-full max-w-[380px]">
-          {/* ── Heading ── */}
-          <h1 className="text-[28px] font-bold text-gray-900 text-center tracking-tight mb-1.5">
+          <h1 className="mb-1.5 text-center text-[28px] font-bold tracking-tight text-gray-900">
             {isLogin ? "Welcome back!" : "Sign up for an account"}
           </h1>
-          <p className="text-center text-sm text-gray-400 mb-7">
-            {isLogin
-              ? "Login to continue your AI journey."
-              : "Build smarter skills with AI."}
+          <p className="mb-7 text-center text-sm text-gray-400">
+            {isLogin ? "Login to continue your AI journey." : "Build smarter skills with AI."}
           </p>
 
-          {/* ── Google OAuth button ── */}
           <button
             type="button"
-            onClick={() =>
-              (window.location.href = `${API_URL}/api/auth/google`)
-            }
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-xl text-[14px] font-medium text-gray-700 bg-white hover:border-gray-400 hover:shadow-sm hover:-translate-y-px transition-all cursor-pointer mb-5"
+            onClick={() => (window.location.href = getGoogleAuthUrl())}
+            className="mb-5 flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-[14px] font-medium text-gray-700 transition-all hover:-translate-y-px hover:border-gray-400 hover:shadow-sm"
           >
             <FcGoogle size={22} />
             Sign Up With Google
           </button>
 
-          {/* ── Divider ── */}
-          <div className="flex items-center gap-3 text-xs text-gray-400 mb-5">
-            <span className="flex-1 h-px bg-gray-200" />
+          <div className="mb-5 flex items-center gap-3 text-xs text-gray-400">
+            <span className="h-px flex-1 bg-gray-200" />
             Or With Email
-            <span className="flex-1 h-px bg-gray-200" />
+            <span className="h-px flex-1 bg-gray-200" />
           </div>
 
-          {/* ── Form ── */}
-          <form
-            onSubmit={isLogin ? handleLogin : handleRegister}
-            className="space-y-2.5"
-          >
-            {/* Name row — Register only */}
+          <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-2.5">
             {!isLogin && (
               <div className="flex gap-2.5">
                 <input
@@ -161,29 +133,27 @@ export default function Auth() {
                   placeholder="First Name"
                   onChange={handleChange}
                   required
-                  className="flex-1 px-3.5 py-3 border border-gray-200 rounded-xl text-sm text-gray-900 bg-gray-50 outline-none placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20 transition-all"
+                  className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20"
                 />
                 <input
                   name="lastName"
                   placeholder="Last Name"
                   onChange={handleChange}
                   required
-                  className="flex-1 px-3.5 py-3 border border-gray-200 rounded-xl text-sm text-gray-900 bg-gray-50 outline-none placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20 transition-all"
+                  className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20"
                 />
               </div>
             )}
 
-            {/* Email */}
             <input
               name="email"
               type="email"
               placeholder="name@host.com"
               onChange={handleChange}
               required
-              className="w-full px-3.5 py-3 border border-gray-200 rounded-xl text-sm text-gray-900 bg-gray-50 outline-none placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20 transition-all"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20"
             />
 
-            {/* Password + show/hide toggle */}
             <div className="relative">
               <input
                 name="password"
@@ -195,91 +165,77 @@ export default function Auth() {
                 onMouseEnter={() => setIsPasswordHovered(true)}
                 onMouseLeave={() => setIsPasswordHovered(false)}
                 required
-                className="w-full px-3.5 py-3 pr-11 border border-gray-200 rounded-xl text-sm text-gray-900 bg-gray-50 outline-none placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20 transition-all"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 pr-11 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-300 focus:border-[#3ecf3e] focus:bg-white focus:ring-2 focus:ring-[#3ecf3e]/20"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors hover:text-gray-700"
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
               </button>
             </div>
 
-            {/* Privacy — Register only */}
             {!isLogin && (
-              <p className="text-xs text-gray-400 leading-relaxed pt-1">
+              <p className="pt-1 text-xs leading-relaxed text-gray-400">
                 By creating an account you agreeing to our{" "}
-                <a
-                  href="#"
-                  className="text-gray-900 font-semibold hover:underline"
-                >
+                <a href="#" className="font-semibold text-gray-900 hover:underline">
                   Privacy Policy
                 </a>
                 .
               </p>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
-              className="w-full py-3.5 mt-1 bg-gray-900 hover:bg-gray-700 text-white text-[15px] font-semibold rounded-xl transition-all hover:-translate-y-px hover:shadow-lg active:translate-y-0 cursor-pointer"
+              className="mt-1 w-full cursor-pointer rounded-xl bg-gray-900 py-3.5 text-[15px] font-semibold text-white transition-all hover:-translate-y-px hover:bg-gray-700 hover:shadow-lg active:translate-y-0"
             >
               {isLogin ? "Login" : "Sign Up"}
             </button>
           </form>
 
           {isLogin && (
-            <div className="text-right pt-2">
+            <div className="pt-2 text-right">
               <button
                 type="button"
                 onClick={() => navigate("/forgot-password")}
-                className="text-sm text-gray-500 hover:text-[#3ecf3e] transition-colors cursor-pointer"
+                className="cursor-pointer text-sm text-gray-500 transition-colors hover:text-[#3ecf3e]"
               >
                 Forgot password?
               </button>
             </div>
           )}
 
-          {/* ── Feedback message ── */}
           {message && (
             <div
-              className={`mt-4 px-4 py-2.5 rounded-xl text-sm font-medium text-center ${
+              className={`mt-4 rounded-xl px-4 py-2.5 text-center text-sm font-medium ${
                 messageType === "success"
                   ? "bg-green-50 text-green-800"
                   : messageType === "error"
-                    ? "bg-red-50 text-red-800"
-                    : "bg-blue-50 text-blue-800"
+                  ? "bg-red-50 text-red-800"
+                  : "bg-blue-50 text-blue-800"
               }`}
             >
               {message}
             </div>
           )}
 
-          {/* ── Toggle Login ↔ Register ── */}
-          <p className="text-center mt-5 text-sm text-gray-400">
+          <p className="mt-5 text-center text-sm text-gray-400">
             {isLogin ? "Don't have an account ?" : "Already have an account ?"}{" "}
             <button
               onClick={() => {
-                setIsLogin(!isLogin);
+                setIsLogin((prev) => !prev);
                 setMessage("");
               }}
-              className="text-gray-900 font-semibold hover:text-[#3ecf3e] transition-colors cursor-pointer"
+              className="cursor-pointer font-semibold text-gray-900 transition-colors hover:text-[#3ecf3e]"
             >
               {isLogin ? "Register" : "Login"}
             </button>
           </p>
         </div>
 
-        {/* Copyright */}
-        <p className="absolute bottom-4 right-6 text-[11px] text-gray-300">
-          © Copyright 2026
-        </p>
+        <p className="absolute bottom-4 right-6 text-[11px] text-gray-300">Copyright 2026</p>
       </div>
     </div>
   );

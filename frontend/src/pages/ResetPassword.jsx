@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { resetPassword as resetPasswordRequest } from "../services/authService";
+import { extractApiError } from "../services/http";
 import logo from "../assets/logo.svg";
 
 export default function ResetPassword() {
@@ -12,8 +14,6 @@ export default function ResetPassword() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("info");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,15 +33,10 @@ export default function ResetPassword() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, newPassword }),
-      });
-      const data = await res.json();
-      setMessage(data.message || "Password has been reset successfully.");
-      setMessageType(res.ok ? "success" : "error");
-      if (res.ok) {
+      const { response, data } = await resetPasswordRequest({ token, newPassword });
+      setMessage(extractApiError(data, "Password has been reset successfully."));
+      setMessageType(response.ok ? "success" : "error");
+      if (response.ok) {
         setTimeout(() => navigate("/"), 1200);
       }
     } catch (error) {
