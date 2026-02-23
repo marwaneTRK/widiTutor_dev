@@ -37,6 +37,9 @@ if (!process.env.SESSION_SECRET) {
 if (!process.env.MONGO_URI) {
   throw new Error("MONGO_URI is required");
 }
+if (process.env.NODE_ENV === "production" || process.env.TRUST_PROXY === "true") {
+  app.set("trust proxy", 1);
+}
 
 const authRoutes = require("./src/routes/authRoutes");
 const aiRoutes = require("./src/routes/aiRoutes");
@@ -65,6 +68,7 @@ const limiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === "OPTIONS",
 });
 app.use(limiter);
 
@@ -73,8 +77,34 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === "OPTIONS",
+  message: { message: "Too many authentication attempts, please try again later." },
 });
-app.use("/api/auth", authLimiter);
+
+const passwordFlowLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === "OPTIONS",
+  message: { message: "Too many password reset requests, please try again later." },
+});
+
+const oauthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === "OPTIONS",
+});
+
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/forgot-password", passwordFlowLimiter);
+app.use("/api/auth/reset-password", passwordFlowLimiter);
+app.use("/api/auth/google", oauthLimiter);
+app.use("/api/auth/google/callback", oauthLimiter);
+app.use("/api/auth/verify", oauthLimiter);
 
 const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000,http://localhost:5173")
   .split(",")
