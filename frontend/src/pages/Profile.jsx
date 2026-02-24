@@ -38,7 +38,7 @@ const extractError = async (response, fallbackMessage) => {
   try {
     const data = await response.json();
     return data?.message || data?.error || fallbackMessage;
-  } catch (error) {
+  } catch {
     return fallbackMessage;
   }
 };
@@ -125,7 +125,7 @@ export default function Profile() {
             profilePicture: data.user.profilePicture || "",
           }));
         }
-      } catch (error) {
+    } catch {
         setMessage({ type: "error", text: "Failed to load profile." });
       } finally {
         setLoading(false);
@@ -266,7 +266,7 @@ export default function Profile() {
         type: "success",
         text: `${profileData?.message || "Profile updated successfully."}${passwordMessage}`,
       });
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Failed to update profile." });
     } finally {
       setSaving(false);
@@ -305,7 +305,7 @@ export default function Profile() {
 
       clearAuthToken();
       navigate("/", { replace: true });
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Failed to delete account." });
     } finally {
       setSaving(false);
