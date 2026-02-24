@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { requestPasswordReset } from "../services/authService";
+import { extractApiError } from "../services/http";
 import logo from "../assets/logo.svg";
 
 export default function ForgotPassword() {
@@ -9,24 +11,20 @@ export default function ForgotPassword() {
   const [messageType, setMessageType] = useState("info");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage("");
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
+      const { response, data } = await requestPasswordReset({ email });
       setMessage(
-        data.message || "If an account with that email exists, a reset link has been sent."
+        extractApiError(
+          data,
+          "If an account with that email exists, a reset link has been sent."
+        )
       );
-      setMessageType(res.ok ? "success" : "error");
+      setMessageType(response.ok ? "success" : "error");
     } catch (error) {
       console.error(error);
       setMessage("Failed to process request. Please try again.");
