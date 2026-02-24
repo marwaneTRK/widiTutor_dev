@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -28,17 +28,18 @@ export default function Auth() {
   const isMascotSleeping =
     isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
-  useEffect(() => {
+  const queryMessage = useMemo(() => {
     if (searchParams.get("verified") === "1") {
-      setMessage("Email verified successfully. You can now log in.");
-      setMessageType("success");
+      return { text: "Email verified successfully. You can now log in.", type: "success" };
     }
-
     if (searchParams.get("error")) {
-      setMessage("Google sign-in failed. Please try again.");
-      setMessageType("error");
+      return { text: "Google sign-in failed. Please try again.", type: "error" };
     }
+    return { text: "", type: "info" };
   }, [searchParams]);
+
+  const displayedMessage = message || queryMessage.text;
+  const displayedMessageType = message ? messageType : queryMessage.type;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -247,17 +248,17 @@ export default function Auth() {
           )}
 
           {/* ── Feedback message ── */}
-          {message && (
+          {displayedMessage && (
             <div
               className={`mt-4 px-4 py-2.5 rounded-xl text-sm font-medium text-center ${
-                messageType === "success"
+                displayedMessageType === "success"
                   ? "bg-green-50 text-green-800"
-                  : messageType === "error"
+                  : displayedMessageType === "error"
                     ? "bg-red-50 text-red-800"
                     : "bg-blue-50 text-blue-800"
               }`}
             >
-              {message}
+              {displayedMessage}
             </div>
           )}
 

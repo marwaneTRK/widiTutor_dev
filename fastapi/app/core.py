@@ -1,9 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from groq import Groq
 
 from config import get_settings
@@ -18,10 +15,6 @@ app = FastAPI(
     docs_url="/docs" if not settings.is_production else None,
     redoc_url=None
 )
-
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,7 +51,7 @@ async def startup_event():
     logger.info(f"Version: {settings.app_version}")
     logger.info(f"Environment: {settings.node_env}")
     logger.info(f"Security: HMAC authentication enabled")
-    logger.info(f"Rate limiting: Enabled")
+    # rate limiting is handled externally or removed for simplicity
     logger.info(f"YouTube API: {'Connected' if settings.youtube_api_key else 'Missing'}")
     logger.info(f"Groq API: {'Connected' if settings.groq_api_key else 'Missing'}")
     logger.info("=" * 60)
