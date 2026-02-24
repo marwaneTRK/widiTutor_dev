@@ -8,7 +8,7 @@ from typing import List
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 
-from app.core import limiter, settings, groq_client
+from app.core import settings, groq_client
 from app.logging_config import logger
 from app.models import (
     VideoSearchRequest,
@@ -28,7 +28,6 @@ router = APIRouter()
 
 
 @router.post("/internal/search-videos", response_model=List[Video], tags=["internal", "youtube"])
-@limiter.limit(f"{settings.rate_limit_per_minute}/minute")
 async def internal_search_videos(
     request: Request,
     search_request: VideoSearchRequest,
@@ -56,7 +55,6 @@ async def internal_search_videos(
 
 
 @router.post("/internal/get-transcript", response_model=TranscriptResponse, tags=["internal", "transcript"])
-@limiter.limit("10/minute")
 async def internal_get_transcript(
     request: Request,
     transcript_request: TranscriptRequest,
@@ -89,7 +87,6 @@ async def internal_get_transcript(
 
 
 @router.post("/internal/generate-summary", response_model=SummaryResponse, tags=["internal", "ai"])
-@limiter.limit(f"{settings.rate_limit_public}/minute")
 async def internal_generate_summary(
     request: Request,
     summary_request: GenerateSummaryRequest,
@@ -114,7 +111,6 @@ async def internal_generate_summary(
 
 
 @router.post("/internal/generate-quiz", response_model=QuizResponse, tags=["internal", "ai"])
-@limiter.limit(f"{settings.rate_limit_public}/minute")
 async def internal_generate_quiz(
     request: Request,
     quiz_request: GenerateQuizRequest,
@@ -139,7 +135,6 @@ async def internal_generate_quiz(
 
 
 @router.post("/internal/chat", tags=["internal", "ai"])
-@limiter.limit(f"{settings.rate_limit_per_minute}/minute")
 async def internal_chat(
     request: Request,
     authenticated: bool = Depends(verify_internal_auth)
@@ -166,13 +161,18 @@ async def internal_chat(
             raise HTTPException(400, detail=error_msg)
 
         # Extract user info
-        user_name = userContext.get("name", "User")
-        if not isinstance(user_name, str) or len(user_name) > 100:
+        user_name = userContext.get("name")
+        if not isinstance(user_name, str) or not user_name.strip() or len(user_name) > 100:
             user_name = "User"
-
         user_id = userContext.get("id", "unknown")
 
         logger.info(f"💬 Educational chat request from user: {user_id} ({user_name})")
+
+        # make sure the model is told the user's name even if frontend forgot
+        # prepend a system message if one doesn't already mention the name
+        name_msg = f"The user\'s name is {user_name}."
+        if not any(m.get("role") == "system" and user_name in m.get("content", "") for m in messages):
+            messages.insert(0, {"role": "system", "content": name_msg})
 
         # Extract video context from messages (if present in system message)
         video_title = "this video"
@@ -210,7 +210,10 @@ YOUR ROLE:
 
 COMMUNICATION STYLE:
 - ALWAYS start your FIRST response with: "Hello {user_name}!"
+- ALWAYS address {user_name} by name in every response
 - After the first message, continue naturally without repeating the greeting
+- Keep a humble, respectful tone at all times
+- Avoid overconfidence; acknowledge uncertainty when needed
 - Be encouraging and supportive
 - Explain concepts step-by-step
 - Use simple language first, then add complexity if needed

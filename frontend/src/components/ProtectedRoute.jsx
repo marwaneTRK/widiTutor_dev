@@ -47,7 +47,7 @@ export default function ProtectedRoute({ children }) {
         if (tokenFromQuery) {
           navigate(location.pathname, { replace: true });
         }
-      } catch (error) {
+      } catch {
         if (!isMounted) {
           return;
         }
@@ -56,7 +56,6 @@ export default function ProtectedRoute({ children }) {
       }
     };
 
-    setIsValidToken(null);
     validate();
 
     return () => {

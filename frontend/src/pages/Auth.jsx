@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -29,20 +29,21 @@ export default function Auth() {
   const isMascotSleeping =
     isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
-  useEffect(() => {
+  const queryMessage = useMemo(() => {
     if (searchParams.get("verified") === "1") {
-      setMessage("Email verified successfully. You can now log in.");
-      setMessageType("success");
+      return { text: "Email verified successfully. You can now log in.", type: "success" };
     }
-
     if (searchParams.get("error")) {
-      setMessage("Google sign-in failed. Please try again.");
-      setMessageType("error");
+      return { text: "Google sign-in failed. Please try again.", type: "error" };
     }
+    return { text: "", type: "info" };
   }, [searchParams]);
 
-  const handleChange = (event) => {
-    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  const displayedMessage = message || queryMessage.text;
+  const displayedMessageType = message ? messageType : queryMessage.type;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleRegister = async (event) => {
@@ -207,17 +208,18 @@ export default function Auth() {
             </div>
           )}
 
-          {message && (
+          {/* ── Feedback message ── */}
+          {displayedMessage && (
             <div
-              className={`mt-4 rounded-xl px-4 py-2.5 text-center text-sm font-medium ${
-                messageType === "success"
+              className={`mt-4 px-4 py-2.5 rounded-xl text-sm font-medium text-center ${
+                displayedMessageType === "success"
                   ? "bg-green-50 text-green-800"
-                  : messageType === "error"
-                  ? "bg-red-50 text-red-800"
-                  : "bg-blue-50 text-blue-800"
+                  : displayedMessageType === "error"
+                    ? "bg-red-50 text-red-800"
+                    : "bg-blue-50 text-blue-800"
               }`}
             >
-              {message}
+              {displayedMessage}
             </div>
           )}
 

@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     # ========================================================================
     # CORS Settings
     # ========================================================================
-    cors_origins: str = "http://localhost:8501"
+    cors_origins: str = "http://localhost:8501, http://localhost:5173"
     cors_credentials: bool = True
     cors_methods: str = "GET,POST"
     cors_headers: str = "Content-Type,X-Internal-Auth"
@@ -86,7 +86,7 @@ class Settings(BaseSettings):
     def validate_cors_origins(cls, v: str) -> str:
         """Ensure CORS_ORIGINS is properly formatted"""
         if not v or v.strip() == "":
-            return "http://localhost:8501"
+            return "http://localhost:8501, http://localhost:5173"
         return v.strip()
     
     # ========================================================================
@@ -109,7 +109,7 @@ class Settings(BaseSettings):
     # ========================================================================
     # YouTube Settings
     # ========================================================================
-    youtube_max_results: int = 50
+    youtube_max_results: int = 10
     transcript_max_length: int = 15000
     
     @field_validator('youtube_max_results')
@@ -121,10 +121,9 @@ class Settings(BaseSettings):
         return v
     
     # ========================================================================
-    # Security & Rate Limiting
+    # Security
     # ========================================================================
-    rate_limit_per_minute: int = 30
-    rate_limit_public: int = 20
+    # (rate limiting removed - handled by external gateway if needed)
     max_messages: int = 50
     max_message_length: int = 10000
     max_total_length: int = 50000
@@ -225,7 +224,6 @@ def print_settings():
     print("Limits:")
     print(f"  YouTube Results: {settings.youtube_max_results}")
     print(f"  Transcript Max:  {settings.transcript_max_length}")
-    print(f"  Rate Limit:      {settings.rate_limit_per_minute}/min")
     print(f"  Log Level:       {settings.log_level}")
     print("=" * 60)
 
