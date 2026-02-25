@@ -12,20 +12,20 @@ export default function Footer() {
   ];
 
   const socials = [
-    { icon: <FaFacebook  size={20} />, href: "#", label: "Facebook" },
-    { icon: <FaInstagram size={20} />, href: "#", label: "Instagram" },
-    { icon: <FaXTwitter  size={18} />, href: "#", label: "X" },
-    { icon: <FaTiktok    size={18} />, href: "#", label: "TikTok" },
+    { icon: <FaFacebook size={20} />, href: "https://www.facebook.com", label: "Facebook" },
+    { icon: <FaInstagram size={20} />, href: "https://www.instagram.com", label: "Instagram" },
+    { icon: <FaXTwitter size={18} />, href: "https://x.com", label: "X" },
+    { icon: <FaTiktok size={18} />, href: "https://www.tiktok.com", label: "TikTok" },
   ];
 
   return (
-    <footer className="bg-[#d4e9d4] dark:bg-neutral-900 px-8 pt-8 pb-6">
+    <footer className="bg-black dark:bg-black px-8 pt-8 pb-6">
 
       {/* Logo */}
       <div className="mb-6">
-        <Link to="/" className="flex items-center gap-2 w-fit">
+        <Link to="/" className="pointer-events-auto flex items-center gap-2 w-fit">
           <img src={logo} alt="WidiTutor" className="h-8 w-auto" />
-          <span className="text-[15px] font-bold text-gray-800 dark:text-gray-100 tracking-tight">
+          <span className="text-[15px] font-bold text-white tracking-tight">
           WidiTutor
         </span>
           
@@ -33,33 +33,36 @@ export default function Footer() {
       </div>
 
       {/* Middle row : links + contact */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-6 sm:gap-16 mb-6">
-
-        {/* Nav links */}
-        <ul className="flex flex-col gap-3">
-          {links.map(({ label, to }) => (
-            <li key={to}>
-              <Link
-                to={to}
-                className="text-sm text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors duration-150"
+      <div className="mb-6">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <Link
+              to="/discord"
+              className="pointer-events-auto w-fit cursor-pointer text-sm text-gray-300 hover:text-white hover:underline transition-colors duration-150"
+            >
+              Discord Community
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400">Contact Us</span>
+              <a
+                href="mailto:WidiTutor@gmail.com"
+                className="pointer-events-auto text-sm text-gray-200 hover:underline transition-all"
               >
-                {label}
-              </Link>
-            </li>
+                WidiTutor@gmail.com
+              </a>
+            </div>
+          </div>
+
+          {links.slice(1).map(({ label, to }) => (
+            <Link
+              key={to}
+              to={to}
+              className="pointer-events-auto w-fit cursor-pointer text-sm text-gray-300 hover:text-white hover:underline transition-colors duration-150"
+            >
+              {label}
+            </Link>
           ))}
-        </ul>
-
-        {/* Contact */}
-        <div className="flex items-center gap-2 sm:mt-0">
-          <span className="text-sm text-gray-500 dark:text-gray-400">Contact Us</span>
-          <a
-            href="mailto:WidiTutor@gmail.com"
-            className="text-sm text-gray-800 dark:text-gray-200 hover:underline transition-all"
-          >
-            WidiTutor@gmail.com
-          </a>
         </div>
-
       </div>
 
       {/* Bottom row : social + copyright */}
@@ -73,7 +76,9 @@ export default function Footer() {
               key={label}
               href={href}
               aria-label={label}
-              className="text-gray-800 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors duration-150"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="pointer-events-auto text-gray-300 hover:text-white dark:text-gray-200 dark:hover:text-white transition-colors duration-150"
             >
               {icon}
             </a>
