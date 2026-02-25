@@ -271,7 +271,7 @@ export default function WelcomePage() {
       className={`min-h-screen ${bg} transition-colors duration-300`}>
 
       <header className={`sticky top-0 z-50 border-b ${border} ${d ? "bg-[#080f0b]/95" : "bg-white/95"} backdrop-blur-md`}>
-        <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-4">
+        <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-4 2xl:max-w-none">
           <div className="flex shrink-0 items-center gap-2">
             <img src={logo} alt="WidiTutor" className="h-8 w-auto" />
             <span className={`hidden text-[15px] font-black tracking-tight sm:block ${text}`}>WidiTutor</span>
@@ -299,7 +299,7 @@ export default function WelcomePage() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[1600px]">
+      <div className="mx-auto flex w-full max-w-[1600px] 2xl:max-w-none">
         <nav className={`hidden lg:flex shrink-0 flex-col items-center border-r py-4 gap-2 ${border} ${d ? "bg-[#080f0b]" : "bg-white"}`}
           style={{ width:64, height:"calc(100vh - 56px)", position:"sticky", top:"56px" }}>
           <div className="flex flex-col items-center gap-1 flex-1 w-full px-2 pt-1">
@@ -330,8 +330,8 @@ export default function WelcomePage() {
           </div>
         </nav>
 
-        <aside className={`hidden border-r lg:flex lg:flex-col shrink-0 ${border} ${d ? "bg-[#0a140d]" : "bg-white"}`}
-          style={{ width:248, height:"calc(100vh - 56px)", position:"sticky", top:"56px" }}>
+        <aside className={`hidden border-r lg:flex lg:flex-col shrink-0 lg:px-2 lg:py-2 ${border} ${d ? "bg-[#0a140d]" : "bg-white"}`}
+          style={{ width:280, height:"calc(100vh - 56px)", position:"sticky", top:"56px" }}>
           <VideoList
             border={border}
             dark={d}
@@ -349,11 +349,11 @@ export default function WelcomePage() {
           <div className="bg-black">
             {selectedVideoEmbedUrl ? (
               <iframe src={selectedVideoEmbedUrl} title={selectedVideo?.title}
-                className="aspect-video w-full"
+                className="mx-auto aspect-video w-full max-w-[1100px]"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen />
             ) : (
-              <div className="flex aspect-video w-full items-center justify-center bg-[#050d07]">
+              <div className="mx-auto flex aspect-video w-full max-w-[1100px] items-center justify-center bg-[#050d07]">
                 <div className="text-center px-6">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0d1f10]">
                     <PlayCircle size={28} className="text-[#3a8a52]" />

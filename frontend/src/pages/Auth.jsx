@@ -1,14 +1,17 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { setAuthToken } from "../utils/auth";
-import { getGoogleAuthUrl, loginUser, registerUser } from "../services/authService";
+import {
+  getGoogleAuthUrl,
+  loginUser,
+  registerUser,
+} from "../services/authService";
 import { extractApiError } from "../services/http";
 import logo from "../assets/logo.svg";
 import widiLookingIcon from "../assets/widi_looking_icon.svg";
 import widiSleepingIcon from "../assets/widi_sleeping.svg";
-import blurEffect from "../assets/blur.svg";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -29,21 +32,20 @@ export default function Auth() {
   const isMascotSleeping =
     isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
-  const queryMessage = useMemo(() => {
+  useEffect(() => {
     if (searchParams.get("verified") === "1") {
-      return { text: "Email verified successfully. You can now log in.", type: "success" };
+      setMessage("Email verified successfully. You can now log in.");
+      setMessageType("success");
     }
+
     if (searchParams.get("error")) {
-      return { text: "Google sign-in failed. Please try again.", type: "error" };
+      setMessage("Google sign-in failed. Please try again.");
+      setMessageType("error");
     }
-    return { text: "", type: "info" };
   }, [searchParams]);
 
-  const displayedMessage = message || queryMessage.text;
-  const displayedMessageType = message ? messageType : queryMessage.type;
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
   };
 
   const handleRegister = async (event) => {
@@ -86,16 +88,11 @@ export default function Auth() {
     <div className="flex h-screen min-h-[600px]">
       <div className="relative isolate hidden flex-[0_0_48%] items-center justify-center overflow-hidden bg-[#ececec] md:flex">
         <img
-          src={blurEffect}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 w-[78%] max-w-[620px] -translate-x-1/2 -translate-y-1/2 opacity-70"
-        />
-        <img
           src={isMascotSleeping ? widiSleepingIcon : widiLookingIcon}
           alt="Widi mascot"
           className="relative z-10 max-h-[70%] w-auto object-contain transition-all duration-200"
         />
+        <div className="pointer-events-none absolute bottom-0 left-0 z-20 h-[47%] w-full bg-[#ececec]/72 backdrop-blur-sm" />
       </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center bg-white px-8 py-12">
@@ -108,7 +105,9 @@ export default function Auth() {
             {isLogin ? "Welcome back!" : "Sign up for an account"}
           </h1>
           <p className="mb-7 text-center text-sm text-gray-400">
-            {isLogin ? "Login to continue your AI journey." : "Build smarter skills with AI."}
+            {isLogin
+              ? "Login to continue your AI journey."
+              : "Build smarter skills with AI."}
           </p>
 
           <button
@@ -126,7 +125,10 @@ export default function Auth() {
             <span className="h-px flex-1 bg-gray-200" />
           </div>
 
-          <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-2.5">
+          <form
+            onSubmit={isLogin ? handleLogin : handleRegister}
+            className="space-y-2.5"
+          >
             {!isLogin && (
               <div className="flex gap-2.5">
                 <input
@@ -174,14 +176,21 @@ export default function Auth() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors hover:text-gray-700"
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+                {showPassword ? (
+                  <AiOutlineEyeInvisible size={20} />
+                ) : (
+                  <AiOutlineEye size={20} />
+                )}
               </button>
             </div>
 
             {!isLogin && (
               <p className="pt-1 text-xs leading-relaxed text-gray-400">
                 By creating an account you agreeing to our{" "}
-                <a href="#" className="font-semibold text-gray-900 hover:underline">
+                <a
+                  href="#"
+                  className="font-semibold text-gray-900 hover:underline"
+                >
                   Privacy Policy
                 </a>
                 .
@@ -208,18 +217,17 @@ export default function Auth() {
             </div>
           )}
 
-          {/* ── Feedback message ── */}
-          {displayedMessage && (
+          {message && (
             <div
-              className={`mt-4 px-4 py-2.5 rounded-xl text-sm font-medium text-center ${
-                displayedMessageType === "success"
+              className={`mt-4 rounded-xl px-4 py-2.5 text-center text-sm font-medium ${
+                messageType === "success"
                   ? "bg-green-50 text-green-800"
-                  : displayedMessageType === "error"
+                  : messageType === "error"
                     ? "bg-red-50 text-red-800"
                     : "bg-blue-50 text-blue-800"
               }`}
             >
-              {displayedMessage}
+              {message}
             </div>
           )}
 
@@ -237,7 +245,9 @@ export default function Auth() {
           </p>
         </div>
 
-        <p className="absolute bottom-4 right-6 text-[11px] text-gray-300">Copyright 2026</p>
+        <p className="absolute bottom-4 right-6 text-[11px] text-gray-300">
+          Copyright 2026
+        </p>
       </div>
     </div>
   );
