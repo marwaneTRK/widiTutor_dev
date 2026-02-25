@@ -66,7 +66,7 @@ export default function VideoList({
                   <div className="min-w-0 flex-1">
                     <p className={`line-clamp-2 text-[11.5px] leading-snug ${
                       isActive ? `font-black ${d ? "text-[#c4e8d4]" : "text-[#1a3325]"}`
-                               : `font-semibold ${d ? "text-[#6a9e82] group-hover:text-[#9ad4b2]" : "text-[#2d4a3a] group-hover:text-[#1a3325]"}`
+                               : `font-semibold ${d ? "text-white group-hover:text-[#f1fff7]" : "text-[#2d4a3a] group-hover:text-[#1a3325]"}`
                     }`}>{video.title}</p>
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2f9d58] text-[7px] font-black text-white">
