@@ -3,22 +3,18 @@ import { Moon, Sun, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { LogoOrigin } from "@assets";
 import { getAuthToken } from "../../utils/auth";
+import { useLocal } from "../../pages/welcome/hooks/useStorage";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark"),
-  );
+  const [dark, setDark] = useLocal("widi_dark", false);
   const [menuOpen, setMenuOpen] = useState(false);
   const goToStart = () => {
     navigate(getAuthToken() ? "/welcome" : "/auth");
   };
 
-  const handleDarkMode = () => {
-    document.documentElement.classList.toggle("dark");
-    setDark(document.documentElement.classList.contains("dark"));
-  };
+  const handleDarkMode = () => setDark((prev) => !prev);
 
   const navLinks = [
     { label: "Home", section: "home" },

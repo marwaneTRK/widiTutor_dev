@@ -268,7 +268,7 @@ export default function WelcomePage() {
 
   return (
     <div style={{ fontFamily:"'DM Sans','Nunito',sans-serif" }}
-      className={`min-h-screen ${bg} transition-colors duration-300`}>
+      className={`min-h-screen ${bg}`}>
 
       <header className={`sticky top-0 z-50 border-b ${border} ${d ? "bg-[#080f0b]/95" : "bg-white/95"} backdrop-blur-md`}>
         <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-4 2xl:max-w-none">

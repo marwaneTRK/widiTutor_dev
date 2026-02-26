@@ -45,7 +45,7 @@ export default function Profile() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${bg} ${text}`}>
+    <div className={`min-h-screen ${bg} ${text}`}>
       <ProfileHeader
         firstName={form.name}
         blurEffect={blurEffect}
