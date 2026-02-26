@@ -3,7 +3,13 @@ import Footer from "../../layouts/footer/Footer";
 import Features from "./Features";
 import ReviewPage from "./Review";
 import InfoWidi from "./InfoWidi";
-import { LogoOrigin, PartnerCDG, PartnerJobintech, PartnerMinister, PartnerOrange } from "@assets";
+import {
+  LogoOrigin,
+  PartnerCDG,
+  PartnerJobintech,
+  PartnerMinister,
+  PartnerOrange,
+} from "@assets";
 import { FaYoutube } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
@@ -19,7 +25,12 @@ const plans = [
     price: "$0",
     billing: "/month",
     description: "5 Days Free-Trail & 7 Days if you share with friends.",
-    features: ["Learning videos", "One Quiz to try", "Community support", "Chat with Tutor 2 Days"],
+    features: [
+      "Learning videos",
+      "One Quiz to try",
+      "Community support",
+      "Chat with Tutor 2 Days",
+    ],
     featured: false,
   },
   {
@@ -27,7 +38,12 @@ const plans = [
     price: "$70",
     billing: "/Year",
     description: "Perfect for growing your knowledge, Unlimited learning.",
-    features: ["Unlimited Learning", "Unlimited Videos", "Unlimited Quizzes", "Unlimited Conversation with Tutor"],
+    features: [
+      "Unlimited Learning",
+      "Unlimited Videos",
+      "Unlimited Quizzes",
+      "Unlimited Conversation with Tutor",
+    ],
     featured: true,
     badge: "Popular",
   },
@@ -36,7 +52,12 @@ const plans = [
     price: "$7",
     billing: "/month",
     description: "Limited Learning.",
-    features: ["Learning videos", "5 Quizzes Per Day", "Dedicated manager", "Chat with Tutor"],
+    features: [
+      "Learning videos",
+      "5 Quizzes Per Day",
+      "Dedicated manager",
+      "Chat with Tutor",
+    ],
     featured: false,
   },
 ];
@@ -51,7 +72,9 @@ const partnerLogosLoop = [...partnerLogos, ...partnerLogos, ...partnerLogos];
 
 function CheckIcon({ featured }) {
   return (
-    <span className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${featured ? "bg-white/15 text-lime-300" : "bg-zinc-900 text-zinc-100"}`}>
+    <span
+      className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold ${featured ? "bg-white/15 text-lime-300" : "bg-zinc-900 text-zinc-100"}`}
+    >
       ✓
     </span>
   );
@@ -89,7 +112,8 @@ export default function HomePage() {
                 Prove Your Progress!
               </h2>
               <p className="mt-0.5 text-[12px] text-gray-500 dark:text-gray-400 sm:text-[13px]">
-                Turn video insights into mastery. Test your skills, and listen to Widitutor.
+                Turn video insights into mastery. Test your skills, and listen
+                to Widitutor.
               </p>
             </div>
           </div>
@@ -100,7 +124,11 @@ export default function HomePage() {
             <div className="mb-5 flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
               <div className="flex -space-x-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-green-500 dark:border-neutral-900">
-                  <img src={LogoOrigin} alt="" className="w-4 h-4 object-contain" />
+                  <img
+                    src={LogoOrigin}
+                    alt=""
+                    className="w-4 h-4 object-contain"
+                  />
                 </div>
                 <div className="" />
               </div>
@@ -111,7 +139,8 @@ export default function HomePage() {
 
             {/* Headline */}
             <h1 className="max-w-[760px] text-[30px] font-extrabold leading-[1.08] tracking-tight text-gray-900 dark:text-white sm:text-[46px]">
-              Keep Learning With <span className="text-green-500">AI</span> Together
+              Keep Learning With <span className="text-green-500">AI</span>{" "}
+              Together
               <br />
               Choose The Videos You Like{" "}
               <span className="mx-1 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 align-middle">
@@ -123,8 +152,10 @@ export default function HomePage() {
 
             {/* Subtitle */}
             <p className="mt-4 max-w-[640px] text-[13.5px] leading-relaxed text-gray-500 dark:text-gray-400 sm:text-[14px]">
-              Our platform allows you to learn directly through our integrated YouTube browser or by pasting links to your preferred videos. To accelerate your
-              progress, you can chat with mimAi, our dedicated assistant bot designed to help you learn faster.
+              Our platform allows you to learn directly through our integrated
+              YouTube browser or by pasting links to your preferred videos. To
+              accelerate your progress, you can chat with WidiTutor, our
+              dedicated assistant bot designed to help you learn faster.
             </p>
 
             {/* CTA */}
@@ -133,8 +164,7 @@ export default function HomePage() {
                 onClick={() => navigate("/auth")}
                 className="flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
               >
-                 {/*  <Settings size={14} /> */}
-               
+                {/*  <Settings size={14} /> */}
                 Start Learning Now
               </button>
               <button
@@ -191,20 +221,27 @@ export default function HomePage() {
           {/* ━━━━━━━━━━━ SECTION 5: INFO WIDI ━━━━━━━━━━━ */}
           <InfoWidi className="mt-16" />
 
-
-
           {/* ━━━━━━━━━━━ SECTION 6: PRICING ━━━━━━━━━━━ */}
-          <section id="pricing" className="scroll-mt-[80px] bg-white dark:bg-neutral-950 px-6 py-16 text-gray-900 dark:text-gray-100">
+          <section
+            id="pricing"
+            className="scroll-mt-[80px] bg-white dark:bg-neutral-950 px-6 py-16 text-gray-900 dark:text-gray-100"
+          >
             <div className="max-w-[1240px] mx-auto">
               <div className="mb-14 text-left">
-                <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">Choose your plan</h2>
-                <p className="mt-2 max-w-2xl text-sm text-gray-600 dark:text-gray-400 sm:text-base">Get started today, no credit card required.</p>
+                <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+                  Choose your plan
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm text-gray-600 dark:text-gray-400 sm:text-base">
+                  Get started today, no credit card required.
+                </p>
               </div>
 
               <div className="grid items-end gap-8 lg:grid-cols-3">
                 {plans.map((plan) => {
                   const card = (
-                    <div className={`relative rounded-[35px] px-7 py-8 sm:px-9 sm:py-9 ${plan.featured ? "h-[500px] border border-lime-400/70 bg-[#1f1f1f] text-white shadow-[0_0_24px_rgba(132,204,22,0.35)]" : "bg-white dark:bg-neutral-900"}`}>
+                    <div
+                      className={`relative rounded-[35px] px-7 py-8 sm:px-9 sm:py-9 ${plan.featured ? "h-[500px] border border-lime-400/70 bg-[#1f1f1f] text-white shadow-[0_0_24px_rgba(132,204,22,0.35)]" : "bg-white dark:bg-neutral-900"}`}
+                    >
                       {plan.badge && (
                         <span className="absolute right-6 top-6 rounded-full bg-green-600/30 px-4 py-1 text-xs font-semibold text-lime-300">
                           {plan.badge}
@@ -212,28 +249,49 @@ export default function HomePage() {
                       )}
                       <h3 className="text-2xl font-semibold">{plan.name}</h3>
                       <div className="mt-4 flex items-end gap-2">
-                        <span className="text-5xl font-semibold leading-none">{plan.price}</span>
-                        <span className={`pb-1 text-sm ${plan.featured ? "text-zinc-300" : "text-gray-500 dark:text-gray-400"}`}>
+                        <span className="text-5xl font-semibold leading-none">
+                          {plan.price}
+                        </span>
+                        <span
+                          className={`pb-1 text-sm ${plan.featured ? "text-zinc-300" : "text-gray-500 dark:text-gray-400"}`}
+                        >
                           {plan.billing}
                         </span>
                       </div>
-                      <p className={`mt-4 min-h-12 text-sm leading-6 ${plan.featured ? "text-zinc-300" : "text-gray-600 dark:text-gray-400"}`}>
+                      <p
+                        className={`mt-4 min-h-12 text-sm leading-6 ${plan.featured ? "text-zinc-300" : "text-gray-600 dark:text-gray-400"}`}
+                      >
                         {plan.description}
                       </p>
                       <button
                         onClick={() => navigate("/auth")}
                         className={`mt-7 h-[59px] w-full rounded-[13px] text-sm font-semibold transition ${
-                          plan.featured ? "bg-white text-gray-900 hover:bg-gray-100" : "bg-[#272727] text-white hover:bg-[#1a1a1a]"
+                          plan.featured
+                            ? "bg-white text-gray-900 hover:bg-gray-100"
+                            : "bg-[#272727] text-white hover:bg-[#1a1a1a]"
                         }`}
                       >
                         Upgrade Now
                       </button>
-                      <div className={`my-7 h-px ${plan.featured ? "bg-white/30" : "bg-gray-300 dark:bg-neutral-700"}`} />
+                      <div
+                        className={`my-7 h-px ${plan.featured ? "bg-white/30" : "bg-gray-300 dark:bg-neutral-700"}`}
+                      />
                       <ul className="space-y-4">
                         {plan.features.map((feature) => (
-                          <li key={feature} className="flex items-center gap-3 text-sm">
+                          <li
+                            key={feature}
+                            className="flex items-center gap-3 text-sm"
+                          >
                             <CheckIcon featured={plan.featured} />
-                            <span className={plan.featured ? "text-zinc-200" : "text-gray-600 dark:text-gray-400"}>{feature}</span>
+                            <span
+                              className={
+                                plan.featured
+                                  ? "text-zinc-200"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }
+                            >
+                              {feature}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -241,7 +299,10 @@ export default function HomePage() {
                   );
 
                   return (
-                    <div key={plan.name} className="overflow-hidden rounded-[35px] shadow-[0_1px_12px_rgba(0,0,0,0.2)]">
+                    <div
+                      key={plan.name}
+                      className="overflow-hidden rounded-[35px] shadow-[0_1px_12px_rgba(0,0,0,0.2)]"
+                    >
                       {card}
                     </div>
                   );
