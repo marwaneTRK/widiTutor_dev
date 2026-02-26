@@ -13,6 +13,7 @@ import {
 import { FaYoutube } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { getAuthToken } from "../../utils/auth";
 // assets imported above
 // partner logos imported above
 
@@ -83,6 +84,9 @@ function CheckIcon({ featured }) {
 export default function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const goToStart = () => {
+    navigate(getAuthToken() ? "/welcome" : "/auth");
+  };
 
   useEffect(() => {
     const section = location.hash?.replace("#", "");
@@ -161,14 +165,14 @@ export default function HomePage() {
             {/* CTA */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
               <button
-                onClick={() => navigate("/auth")}
+                onClick={goToStart}
                 className="flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
               >
                 {/*  <Settings size={14} /> */}
                 Start Learning Now
               </button>
               <button
-                onClick={() => navigate("/auth")}
+                onClick={goToStart}
                 className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white underline underline-offset-2 transition-colors"
               >
                 Try for free
@@ -264,7 +268,7 @@ export default function HomePage() {
                         {plan.description}
                       </p>
                       <button
-                        onClick={() => navigate("/auth")}
+                        onClick={goToStart}
                         className={`mt-7 h-[59px] w-full rounded-[13px] text-sm font-semibold transition ${
                           plan.featured
                             ? "bg-white text-gray-900 hover:bg-gray-100"

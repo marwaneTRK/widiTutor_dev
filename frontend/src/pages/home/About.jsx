@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { User1, User2, User3 } from "@assets";
+import { getAuthToken } from "../../utils/auth";
 
 const USERS = [
   {
@@ -28,6 +29,9 @@ const USERS = [
 
 export default function About() {
   const navigate = useNavigate();
+  const goToStart = () => {
+    navigate(getAuthToken() ? "/welcome" : "/auth");
+  };
 
   return (
     <section className="bg-white dark:bg-neutral-950 px-8 py-16">
@@ -96,7 +100,7 @@ export default function About() {
             assistant bot designed to help you learn faster.
           </p>
           <button
-            onClick={() => navigate("/auth")}
+            onClick={goToStart}
             className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold hover:opacity-80 transition-all shadow-md"
           >
             Learn Now →

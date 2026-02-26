@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { User1, User2, User3 } from "@assets";
+import { getAuthToken } from "../../utils/auth";
 
 const USERS = [
   {
@@ -29,6 +30,9 @@ const USERS_LOOP = [...USERS, ...USERS, ...USERS];
 
 export default function ReviewPage() {
   const navigate = useNavigate();
+  const goToStart = () => {
+    navigate(getAuthToken() ? "/welcome" : "/auth");
+  };
 
   const renderCard = (user, index, lane) => (
     <article
@@ -97,7 +101,7 @@ export default function ReviewPage() {
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={() => navigate("/auth")}
+              onClick={goToStart}
               className="inline-flex items-center gap-2 rounded-[8px] bg-[#272727] px-4 py-2 text-[14px] font-semibold text-white sm:text-[19px]"
             >
               Learn Now
