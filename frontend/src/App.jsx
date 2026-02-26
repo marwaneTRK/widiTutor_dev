@@ -6,11 +6,11 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import HomePage from "./pages/home/HomePage";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route
@@ -30,6 +30,8 @@ function App() {
         }
       />
       <Route path="*" element={<NotFound />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/" element={<HomePage />} />
     </Routes>
   );
 }
