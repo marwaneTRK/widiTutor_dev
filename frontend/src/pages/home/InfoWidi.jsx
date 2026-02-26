@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { AboutIcon, ImageInfo, ImageInfo2 } from "@assets";
+import { AboutIcon, WidiTutorVideo } from "@assets";
 import { getAuthToken } from "../../utils/auth";
 
 export default function InfoWidi() {
@@ -45,11 +45,35 @@ export default function InfoWidi() {
         <div className="relative flex flex-1 items-center justify-center">
           <div className="relative w-full max-w-[620px] min-h-[390px]">
             <div className="absolute -right-1 top-1/2 z-10 w-[52%] -translate-y-1/2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_12px_35px_rgba(0,0,0,0.12)] dark:border-neutral-700 dark:bg-neutral-900">
-              <img src={ImageInfo2} alt="Quiz sidebar" className="h-auto w-full object-contain" />
+              <video
+                src={WidiTutorVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                controls={false}
+                disablePictureInPicture
+                onContextMenu={(e) => e.preventDefault()}
+                className="pointer-events-none h-auto w-full object-cover select-none"
+                aria-hidden="true"
+              />
             </div>
 
             <div className="relative z-20 w-[74%] overflow-hidden rounded-2xl border border-green-400/80 bg-white shadow-[0_16px_45px_rgba(22,163,74,0.22)] dark:border-green-500/70 dark:bg-neutral-900">
-              <img src={ImageInfo} alt="Chat UI" className="h-auto w-full object-contain" />
+              <video
+                src={WidiTutorVideo}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                controls={false}
+                disablePictureInPicture
+                onContextMenu={(e) => e.preventDefault()}
+                className="pointer-events-none h-auto w-full object-cover select-none"
+                aria-hidden="true"
+              />
             </div>
           </div>
         </div>

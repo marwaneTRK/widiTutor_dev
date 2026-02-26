@@ -9,6 +9,7 @@ export { default as FeaturesBg } from "./backgrounds/features-bg.svg";
 
 export { default as ImageInfo } from "./illustrations/image-info.svg";
 export { default as ImageInfo2 } from "./illustrations/image-info-2.svg";
+export { default as WidiTutorVideo } from "./illustrations/widitutor_video.mp4";
 
 export { default as User1 } from "./people/user-1.svg";
 export { default as User2 } from "./people/user-2.svg";
