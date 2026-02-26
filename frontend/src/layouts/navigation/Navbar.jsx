@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { LogoOrigin } from "@assets";
+import { getAuthToken } from "../../utils/auth";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -10,6 +11,9 @@ export default function Navbar() {
     document.documentElement.classList.contains("dark"),
   );
   const [menuOpen, setMenuOpen] = useState(false);
+  const goToStart = () => {
+    navigate(getAuthToken() ? "/welcome" : "/auth");
+  };
 
   const handleDarkMode = () => {
     document.documentElement.classList.toggle("dark");
@@ -83,7 +87,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate("/auth")}
+            onClick={goToStart}
             className="hidden items-center gap-1.5 rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-800 transition-all duration-150 hover:border-gray-400 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-200 dark:hover:border-neutral-500 sm:flex"
           >
             Get started <span className="text-gray-400 dark:text-neutral-500">-&gt;</span>
@@ -137,7 +141,7 @@ export default function Navbar() {
 
           <button
             onClick={() => {
-              navigate("/auth");
+              goToStart();
               setMenuOpen(false);
             }}
             className="mt-1 w-full rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-medium text-gray-800 transition-all hover:border-gray-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-200"

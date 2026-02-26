@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { AboutIcon, ImageInfo, ImageInfo2 } from "@assets";
+import { getAuthToken } from "../../utils/auth";
 
 export default function InfoWidi() {
   const navigate = useNavigate();
+  const goToStart = () => {
+    navigate(getAuthToken() ? "/welcome" : "/auth");
+  };
 
   return (
     <section className="relative overflow-hidden bg-white px-6 py-16 dark:bg-neutral-950 sm:px-8">
@@ -29,7 +33,7 @@ export default function InfoWidi() {
 
           <div>
             <button
-              onClick={() => navigate("/auth")}
+              onClick={goToStart}
               className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-black dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
             >
               Get started
