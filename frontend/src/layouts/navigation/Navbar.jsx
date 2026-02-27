@@ -1,29 +1,69 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogoOrigin } from "@assets";
-import { getAuthToken } from "../../utils/auth";
 import { useLocal } from "../../pages/welcome/hooks/useStorage";
+import { getAuthToken } from "../../utils/auth";
+import { getSelectedPlan, isPaidPlan, isPaymentRequired } from "../../utils/plan";
+
+const NAV_LINKS = [
+  { label: "Home", section: "home" },
+  { label: "Features", section: "features" },
+  { label: "Pricing", section: "pricing" },
+];
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [dark, setDark] = useLocal("widi_dark", false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
   const goToStart = () => {
-    navigate(getAuthToken() ? "/welcome" : "/auth");
+    const token = getAuthToken();
+    if (token) {
+      const selectedPlan = getSelectedPlan();
+      if (isPaidPlan(selectedPlan) && isPaymentRequired()) {
+        navigate(`/billing?plan=${encodeURIComponent(selectedPlan)}`);
+        return;
+      }
+      navigate("/welcome");
+      return;
+    }
+    handleSectionNav("pricing");
   };
 
   const handleDarkMode = () => setDark((prev) => !prev);
 
-  const navLinks = [
-    { label: "Home", section: "home" },
-    { label: "Features", section: "features" },
-    { label: "Pricing", section: "pricing" },
-  ];
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
 
-  const currentSection =
-    location.pathname === "/" ? location.hash?.replace("#", "") || "home" : "";
+    const sections = NAV_LINKS.map(({ section }) => section);
+    const syncActiveSection = () => {
+      const scrollAnchor = window.scrollY + 140;
+      let nextActive = "home";
+
+      for (const section of sections) {
+        const target = document.getElementById(section);
+        if (target && scrollAnchor >= target.offsetTop) {
+          nextActive = section;
+        }
+      }
+
+      setActiveSection(nextActive);
+    };
+
+    syncActiveSection();
+    window.addEventListener("scroll", syncActiveSection, { passive: true });
+    window.addEventListener("resize", syncActiveSection);
+
+    return () => {
+      window.removeEventListener("scroll", syncActiveSection);
+      window.removeEventListener("resize", syncActiveSection);
+    };
+  }, [location.pathname]);
 
   const handleSectionNav = (section) => {
     setMenuOpen(false);
@@ -59,8 +99,8 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-0.5 rounded-full border border-gray-200 bg-gray-100 px-1 py-1 dark:border-neutral-700 dark:bg-neutral-800 md:flex">
-          {navLinks.map(({ label, section }) => {
-            const isActive = currentSection === section;
+          {NAV_LINKS.map(({ label, section }) => {
+            const isActive = activeSection === section;
             return (
               <button
                 key={section}
@@ -116,8 +156,8 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-1 border-t border-gray-100 px-4 pb-4 pt-1 dark:border-neutral-800">
-          {navLinks.map(({ label, section }) => {
-            const isActive = currentSection === section;
+          {NAV_LINKS.map(({ label, section }) => {
+            const isActive = activeSection === section;
             return (
               <button
                 key={section}

@@ -3,22 +3,29 @@ const User = require("../model/User");
 const authMiddleware = require("../middleware/authMiddleware");
 const { generateInternalAuth } = require("../helpers/internalAuth");
 const { FASTAPI_INTERNAL_URL, FASTAPI_HEALTH_PATH } = require("../config/fastapi");
+const {
+  assertQuizAccess,
+  markQuizUsage,
+  assertChatAccess,
+  markChatUsage,
+} = require("../services/entitlementService");
 
 const router = express.Router();
 const MAX_TRANSCRIPT_LENGTH = 15000;
 
-const getUserContext = async (req) => {
-  const user = await User.findById(req.user.id).select("name lastName email");
-  if (!user) {
-    return null;
-  }
-
+const getUserContext = (user) => {
   return {
     id: user._id.toString(),
     name: user.name,
     lastName: user.lastName,
     email: user.email,
   };
+};
+
+const getUserForAi = async (req) => {
+  return User.findById(req.user.id).select(
+    "name lastName email subscriptionPlan dailyUsageDate dailyQuizCount dailyChatCount createdAt"
+  );
 };
 
 const buildInternalHeaders = () => {
@@ -123,10 +130,11 @@ router.post("/generate-summary", authMiddleware, async (req, res) => {
         .json({ error: `Transcript too long (max ${MAX_TRANSCRIPT_LENGTH} characters)` });
     }
 
-    const userContext = await getUserContext(req);
-    if (!userContext) {
+    const user = await getUserForAi(req);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+    const userContext = getUserContext(user);
 
     const aiResponse = await forwardJsonRequest("/internal/generate-summary", {
       transcript,
@@ -158,10 +166,20 @@ router.post("/generate-quiz", authMiddleware, async (req, res) => {
         .json({ error: `Transcript too long (max ${MAX_TRANSCRIPT_LENGTH} characters)` });
     }
 
-    const userContext = await getUserContext(req);
-    if (!userContext) {
+    const user = await getUserForAi(req);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    const quizAccess = await assertQuizAccess(user);
+    if (!quizAccess.allowed) {
+      return res.status(quizAccess.statusCode || 403).json({
+        error: quizAccess.message,
+        usage: quizAccess.usage,
+      });
+    }
+
+    const userContext = getUserContext(user);
 
     const aiResponse = await forwardJsonRequest("/internal/generate-quiz", {
       transcript,
@@ -174,6 +192,7 @@ router.post("/generate-quiz", authMiddleware, async (req, res) => {
     }
 
     const result = await aiResponse.json();
+    await markQuizUsage(user);
     return res.json(result);
   } catch (error) {
     console.error("Quiz generation error:", error);
@@ -188,10 +207,20 @@ router.post("/chat", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Invalid messages format" });
     }
 
-    const userContext = await getUserContext(req);
-    if (!userContext) {
+    const user = await getUserForAi(req);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    const chatAccess = await assertChatAccess(user);
+    if (!chatAccess.allowed) {
+      return res.status(chatAccess.statusCode || 403).json({
+        error: chatAccess.message,
+        usage: chatAccess.usage,
+      });
+    }
+
+    const userContext = getUserContext(user);
 
     const aiResponse = await forwardJsonRequest("/internal/chat", { messages, userContext });
     if (!aiResponse.ok) {
@@ -212,6 +241,7 @@ router.post("/chat", authMiddleware, async (req, res) => {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
+        await markChatUsage(user);
         res.end();
         break;
       }

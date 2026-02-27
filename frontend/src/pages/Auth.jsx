@@ -9,6 +9,13 @@ import {
   registerUser,
 } from "../services/authService";
 import { extractApiError } from "../services/http";
+import {
+  getSelectedPlan,
+  isPaidPlan,
+  isPaymentRequired,
+  setPaymentRequired,
+  setSelectedPlan,
+} from "../utils/plan";
 import logo from "../assets/logo.svg";
 import widiLookingIcon from "../assets/widi_looking_icon.svg";
 import widiSleepingIcon from "../assets/widi_sleeping.svg";
@@ -33,6 +40,13 @@ export default function Auth() {
     isPasswordFocused || isPasswordHovered || form.password.trim().length > 0;
 
   useEffect(() => {
+    const planFromUrl = searchParams.get("plan");
+    if (planFromUrl) {
+      const normalized = planFromUrl.toLowerCase();
+      setSelectedPlan(normalized);
+      setPaymentRequired(isPaidPlan(normalized));
+    }
+
     if (searchParams.get("verified") === "1") {
       setMessage("Email verified successfully. You can now log in.");
       setMessageType("success");
@@ -75,6 +89,11 @@ export default function Auth() {
       setMessageType(response.ok ? "success" : "error");
       if (response.ok && data?.token) {
         setAuthToken(data.token);
+        const selectedPlan = getSelectedPlan();
+        if (isPaidPlan(selectedPlan) && isPaymentRequired()) {
+          navigate(`/billing?plan=${encodeURIComponent(selectedPlan)}`);
+          return;
+        }
         navigate("/welcome");
       }
     } catch (error) {

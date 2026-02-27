@@ -7,6 +7,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import HomePage from "./pages/home/HomePage";
+import Billing from "./pages/Billing";
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/billing"
+        element={
+          <ProtectedRoute>
+            <Billing />
           </ProtectedRoute>
         }
       />

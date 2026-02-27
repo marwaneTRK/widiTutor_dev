@@ -28,9 +28,13 @@ const USERS = [
 ];
 const USERS_LOOP = [...USERS, ...USERS, ...USERS];
 
-export default function ReviewPage() {
+export default function ReviewPage({ onGetStarted }) {
   const navigate = useNavigate();
   const goToStart = () => {
+    if (typeof onGetStarted === "function") {
+      onGetStarted();
+      return;
+    }
     navigate(getAuthToken() ? "/welcome" : "/auth");
   };
 
