@@ -7,13 +7,23 @@ import {
   LogoOrigin,
   PartnerCDG,
   PartnerJobintech,
+  PartnerMNC,
   PartnerMinister,
   PartnerOrange,
+  PartnerStripe,
 } from "@assets";
 import { FaYoutube } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { getAuthToken } from "../../utils/auth";
+import {
+  getSelectedPlan,
+  isPaidPlan,
+  isPaymentRequired,
+  setPaymentRequired,
+  setSelectedPlan,
+} from "../../utils/plan";
+import { getSubscriptionStatus } from "../../services/billingService";
 // assets imported above
 // partner logos imported above
 
@@ -25,12 +35,12 @@ const plans = [
     name: "Free",
     price: "$0",
     billing: "/month",
-    description: "5 Days Free-Trail & 7 Days if you share with friends.",
+    description: "Start learning with core features.",
     features: [
       "Learning videos",
-      "One Quiz to try",
+      "No Quiz access",
       "Community support",
-      "Chat with Tutor 2 Days",
+      "Chat with Tutor (first 2 days)",
     ],
     featured: false,
   },
@@ -38,12 +48,12 @@ const plans = [
     name: "Pro",
     price: "$70",
     billing: "/Year",
-    description: "Perfect for growing your knowledge, Unlimited learning.",
+    description: "Full access with no limits.",
     features: [
       "Unlimited Learning",
       "Unlimited Videos",
       "Unlimited Quizzes",
-      "Unlimited Conversation with Tutor",
+      "Unlimited Conversation with Chat",
     ],
     featured: true,
     badge: "Popular",
@@ -52,12 +62,12 @@ const plans = [
     name: "Basic",
     price: "$7",
     billing: "/month",
-    description: "Limited Learning.",
+    description: "Daily limits for consistent learners.",
     features: [
       "Learning videos",
       "5 Quizzes Per Day",
-      "Dedicated manager",
-      "Chat with Tutor",
+      "Dedicated manager support",
+      "Chat with Tutor (20/day)",
     ],
     featured: false,
   },
@@ -66,8 +76,10 @@ const plans = [
 const partnerLogos = [
   { src: PartnerCDG, alt: "CDG" },
   { src: PartnerJobintech, alt: "Jobintech" },
+  { src: PartnerMNC, alt: "MNC" },
   { src: PartnerMinister, alt: "Ministere de la Transition Numerique" },
   { src: PartnerOrange, alt: "Orange" },
+  { src: PartnerStripe, alt: "Stripe" },
 ];
 const partnerLogosLoop = [...partnerLogos, ...partnerLogos, ...partnerLogos];
 
@@ -84,8 +96,50 @@ function CheckIcon({ featured }) {
 export default function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const scrollToPricing = () => {
+    const pricing = document.getElementById("pricing");
+    if (pricing) {
+      pricing.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    navigate("/#pricing");
+  };
+
+  const handlePlanSelect = (planName) => {
+    const plan = String(planName || "").toLowerCase();
+    setSelectedPlan(plan);
+    const requiresPayment = isPaidPlan(plan);
+    setPaymentRequired(requiresPayment);
+
+    const token = getAuthToken();
+    if (!token) {
+      navigate(`/auth?plan=${encodeURIComponent(plan)}`);
+      return;
+    }
+
+    if (requiresPayment) {
+      navigate(`/billing?plan=${encodeURIComponent(plan)}`);
+      return;
+    }
+
+    navigate("/welcome");
+  };
+
   const goToStart = () => {
-    navigate(getAuthToken() ? "/welcome" : "/auth");
+    const token = getAuthToken();
+    if (!token) {
+      scrollToPricing();
+      return;
+    }
+
+    const selectedPlan = getSelectedPlan();
+    if (isPaidPlan(selectedPlan) && isPaymentRequired()) {
+      navigate(`/billing?plan=${encodeURIComponent(selectedPlan)}`);
+      return;
+    }
+
+    navigate("/welcome");
   };
 
   useEffect(() => {
@@ -102,6 +156,33 @@ export default function HomePage() {
       }
     });
   }, [location.hash]);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    const selectedPlan = getSelectedPlan();
+    if (!token || !isPaidPlan(selectedPlan) || !isPaymentRequired()) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const syncPaidAccess = async () => {
+      try {
+        const sub = await getSubscriptionStatus({ token });
+        if (cancelled) return;
+        if (sub?.subscriptionStatus === "active" || sub?.subscriptionStatus === "trialing") {
+          setPaymentRequired(false);
+        }
+      } catch {
+        // Keep local payment-required state if status check fails.
+      }
+    };
+
+    syncPaidAccess();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="relative bg-white dark:bg-neutral-950 overflow-hidden">
@@ -217,13 +298,13 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ━━━━━━━━━━━ SECTION 4: HOW IT WORKS ━━━━━━━━━━━ */}
+          {/* ━━━━━━━━━━━ SECTION 4: INFO WIDI ━━━━━━━━━━━ */}
+          <InfoWidi className="mt-16" onGetStarted={goToStart} />
+
+          {/* ━━━━━━━━━━━ SECTION 5: HOW IT WORKS ━━━━━━━━━━━ */}
           <div id="features" className="scroll-mt-[80px]">
             <Features />
           </div>
-
-          {/* ━━━━━━━━━━━ SECTION 5: INFO WIDI ━━━━━━━━━━━ */}
-          <InfoWidi className="mt-16" />
 
           {/* ━━━━━━━━━━━ SECTION 6: PRICING ━━━━━━━━━━━ */}
           <section
@@ -268,7 +349,7 @@ export default function HomePage() {
                         {plan.description}
                       </p>
                       <button
-                        onClick={goToStart}
+                        onClick={() => handlePlanSelect(plan.name)}
                         className={`mt-7 h-[59px] w-full rounded-[13px] text-sm font-semibold transition ${
                           plan.featured
                             ? "bg-white text-gray-900 hover:bg-gray-100"
@@ -316,7 +397,7 @@ export default function HomePage() {
           </section>
 
           {/* ━━━━━━━━━━━ SECTION 7: USER REVIEWS & CTA ━━━━━━━━━━━ */}
-          <ReviewPage />
+          <ReviewPage onGetStarted={goToStart} />
           <style>{`
             @keyframes home-logos-slide {
               from {

@@ -272,10 +272,14 @@ export default function WelcomePage() {
 
       <header className={`sticky top-0 z-50 border-b ${border} ${d ? "bg-[#080f0b]/95" : "bg-white/95"} backdrop-blur-md`}>
         <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-4 2xl:max-w-none">
-          <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex shrink-0 items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-[#eef7f0] dark:hover:bg-[#102217]"
+          >
             <img src={logo} alt="WidiTutor" className="h-8 w-auto" />
             <span className={`hidden text-[15px] font-black tracking-tight sm:block ${text}`}>WidiTutor</span>
-          </div>
+          </button>
 
           <form onSubmit={e => { e.preventDefault(); searchVideos(searchQuery); }}
             className={`mx-auto flex max-w-xl flex-1 items-center gap-2 rounded-full border px-3 py-2 shadow-inner transition focus-within:border-[#2f9d58] focus-within:ring-2 focus-within:ring-[#2f9d58]/20 sm:px-4 ${border} ${d ? "bg-[#0d1a11]" : "bg-[#f4f9f5]"}`}>

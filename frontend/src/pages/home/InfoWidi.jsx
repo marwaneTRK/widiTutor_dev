@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { AboutIcon, ImageInfo, ImageInfo2 } from "@assets";
+import { AboutIcon, WidiTutorVideo } from "@assets";
 import { getAuthToken } from "../../utils/auth";
 
-export default function InfoWidi() {
+export default function InfoWidi({ onGetStarted }) {
   const navigate = useNavigate();
   const goToStart = () => {
+    if (typeof onGetStarted === "function") {
+      onGetStarted();
+      return;
+    }
     navigate(getAuthToken() ? "/welcome" : "/auth");
   };
 
@@ -42,14 +46,31 @@ export default function InfoWidi() {
           </div>
         </div>
 
-        <div className="relative flex flex-1 items-center justify-center">
+        <div className="relative flex flex-1 items-center justify-center pt-30">
           <div className="relative w-full max-w-[620px] min-h-[390px]">
-            <div className="absolute -right-1 top-1/2 z-10 w-[52%] -translate-y-1/2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_12px_35px_rgba(0,0,0,0.12)] dark:border-neutral-700 dark:bg-neutral-900">
-              <img src={ImageInfo2} alt="Quiz sidebar" className="h-auto w-full object-contain" />
-            </div>
+            <div className="relative z-20 w-[74%]">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 translate-x-4 translate-y-8 rounded-2xl border border-green-200/40 bg-gradient-to-br from-green-200/45 via-white/25 to-green-300/30 shadow-[0_30px_70px_rgba(34,197,94,0.28)] backdrop-blur-xl dark:border-green-500/20 dark:from-green-500/15 dark:via-emerald-400/10 dark:to-green-600/20 dark:shadow-[0_24px_60px_rgba(34,197,94,0.24)] sm:translate-x-6 sm:translate-y-10 lg:translate-x-8 lg:translate-y-12"
+              >
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-white/40 dark:ring-white/10" />
+              </div>
 
-            <div className="relative z-20 w-[74%] overflow-hidden rounded-2xl border border-green-400/80 bg-white shadow-[0_16px_45px_rgba(22,163,74,0.22)] dark:border-green-500/70 dark:bg-neutral-900">
-              <img src={ImageInfo} alt="Chat UI" className="h-auto w-full object-contain" />
+              <div className="relative z-20 overflow-hidden rounded-2xl border border-green-400/80 bg-white shadow-[0_16px_45px_rgba(22,163,74,0.22)] dark:border-green-500/70 dark:bg-neutral-900">
+                <video
+                  src={WidiTutorVideo}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  controls={false}
+                  disablePictureInPicture
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="pointer-events-none h-auto w-full object-cover select-none"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
           </div>
         </div>

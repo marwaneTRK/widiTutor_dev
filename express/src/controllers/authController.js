@@ -61,6 +61,9 @@ const sanitizeUser = (user) => ({
   progressGoals: user.progressGoals || "",
   profilePicture: user.profilePicture || null,
   isVerified: user.isVerified,
+  subscriptionPlan: user.subscriptionPlan || "free",
+  subscriptionStatus: user.subscriptionStatus || "inactive",
+  subscriptionCurrentPeriodEnd: user.subscriptionCurrentPeriodEnd || null,
 });
 
 const FORGOT_PASSWORD_SUCCESS_MESSAGE = "A reset link has been sent to your email.";
@@ -305,7 +308,7 @@ const googleCallback = async (req, res) => {
 const me = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "name lastName email domain studies progressGoals profilePicture isVerified googleId createdAt updatedAt"
+      "name lastName email domain studies progressGoals profilePicture isVerified googleId subscriptionPlan subscriptionStatus subscriptionCurrentPeriodEnd createdAt updatedAt"
     );
     if (!user) {
       return res.status(404).json({ message: "User not found" });

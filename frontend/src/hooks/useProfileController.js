@@ -19,6 +19,9 @@ const INITIAL_FORM = {
   email: "",
   progressGoals: "",
   profilePicture: "",
+  subscriptionPlan: "free",
+  subscriptionStatus: "inactive",
+  subscriptionCurrentPeriodEnd: null,
   currentPassword: "",
   newPassword: "",
 };
@@ -37,6 +40,9 @@ const mapUserToForm = (user = {}) => ({
   email: user.email || "",
   progressGoals: user.progressGoals || "",
   profilePicture: user.profilePicture || "",
+  subscriptionPlan: (user.subscriptionPlan || "free").toLowerCase(),
+  subscriptionStatus: (user.subscriptionStatus || "inactive").toLowerCase(),
+  subscriptionCurrentPeriodEnd: user.subscriptionCurrentPeriodEnd || null,
 });
 
 export default function useProfileController({ navigate, fallbackProfilePicture }) {

@@ -43,10 +43,13 @@ if (process.env.NODE_ENV === "production" || process.env.TRUST_PROXY === "true")
 
 const authRoutes = require("./src/routes/authRoutes");
 const aiRoutes = require("./src/routes/aiRoutes");
+const billingRoutes = require("./src/routes/billingRoutes");
+const billingController = require("./src/controllers/billingController");
 require("./src/config/passport");
 
 app.use(helmet());
 app.use(morgan("tiny"));
+app.post("/api/billing/webhook", express.raw({ type: "application/json" }), billingController.webhook);
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use((req, res, next) => {
@@ -145,6 +148,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api", aiRoutes);
+app.use("/api/billing", billingRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({

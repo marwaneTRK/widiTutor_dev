@@ -9,6 +9,7 @@ export { default as FeaturesBg } from "./backgrounds/features-bg.svg";
 
 export { default as ImageInfo } from "./illustrations/image-info.svg";
 export { default as ImageInfo2 } from "./illustrations/image-info-2.svg";
+export { default as WidiTutorVideo } from "./illustrations/widitutor_video.mp4";
 
 export { default as User1 } from "./people/user-1.svg";
 export { default as User2 } from "./people/user-2.svg";
@@ -19,3 +20,5 @@ export { default as PartnerCDG } from "./partners/partner-cdg.svg";
 export { default as PartnerJobintech } from "./partners/partner-jobintech.png";
 export { default as PartnerMinister } from "./partners/partner-minister.svg";
 export { default as PartnerOrange } from "./partners/partner-orange.svg";
+export { default as PartnerStripe } from "./partners/stripe.png";
+export { default as PartnerMNC } from "./partners/logo-mnc.webp";
