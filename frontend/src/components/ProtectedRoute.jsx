@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { clearAuthToken, getAuthToken, setAuthToken } from "../utils/auth";
 import { fetchCurrentUser } from "../services/authService";
+import { getSelectedPlan, isPaidPlan, isPaymentRequired } from "../utils/plan";
 
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
@@ -73,6 +74,12 @@ export default function ProtectedRoute({ children }) {
 
   if (!isValidToken) {
     return <Navigate to="/" replace />;
+  }
+
+  const selectedPlan = getSelectedPlan();
+  const blockedByBilling = isPaidPlan(selectedPlan) && isPaymentRequired() && location.pathname !== "/billing";
+  if (blockedByBilling) {
+    return <Navigate to={`/billing?plan=${encodeURIComponent(selectedPlan)}`} replace />;
   }
 
   return children;

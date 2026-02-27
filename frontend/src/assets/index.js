@@ -20,3 +20,5 @@ export { default as PartnerCDG } from "./partners/partner-cdg.svg";
 export { default as PartnerJobintech } from "./partners/partner-jobintech.png";
 export { default as PartnerMinister } from "./partners/partner-minister.svg";
 export { default as PartnerOrange } from "./partners/partner-orange.svg";
+export { default as PartnerStripe } from "./partners/stripe.png";
+export { default as PartnerMNC } from "./partners/logo-mnc.webp";

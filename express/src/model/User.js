@@ -79,6 +79,42 @@ const userSchema = new mongoose.Schema(
     passwordChangedAt: {
       type: Date,
     },
+    stripeCustomerId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    stripeSubscriptionId: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    subscriptionStatus: {
+      type: String,
+      trim: true,
+      default: "inactive",
+    },
+    subscriptionPlan: {
+      type: String,
+      trim: true,
+      default: "free",
+    },
+    subscriptionCurrentPeriodEnd: {
+      type: Date,
+      default: null,
+    },
+    dailyUsageDate: {
+      type: String,
+      default: null,
+    },
+    dailyQuizCount: {
+      type: Number,
+      default: 0,
+    },
+    dailyChatCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

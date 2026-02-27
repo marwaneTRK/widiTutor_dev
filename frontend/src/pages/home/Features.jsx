@@ -66,7 +66,7 @@ export default function Features() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen bg-gradient-to-b from-[#ececec] via-[#e8e8e8] to-[#8de58e] px-6 py-12 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-900 sm:px-10 sm:py-14"
+      className="relative min-h-screen bg-gradient-to-b from-[white] via-[#e8e8e8] to-[#8de58e] px-6 py-12 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-900 sm:px-10 sm:py-14"
     >
       <button
         type="button"

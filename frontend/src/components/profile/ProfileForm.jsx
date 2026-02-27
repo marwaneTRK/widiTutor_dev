@@ -17,6 +17,24 @@ export default function ProfileForm({
   onToggleCurrentPassword,
   onToggleNewPassword,
 }) {
+  const normalizedPlan = (form.subscriptionPlan || "free").toLowerCase();
+  const isFree = normalizedPlan === "free";
+  const isBasic = normalizedPlan === "basic";
+  const isPro = normalizedPlan === "pro";
+
+  const expiryText = form.subscriptionCurrentPeriodEnd
+    ? new Date(form.subscriptionCurrentPeriodEnd).toLocaleDateString("en-GB")
+    : "No expiry";
+
+  const statusBadgeClass =
+    form.subscriptionStatus === "active" || form.subscriptionStatus === "trialing"
+      ? dark
+        ? "bg-[#114427] text-[#4ade80]"
+        : "bg-[#e8f9ee] text-[#1f7a42]"
+      : dark
+        ? "bg-[#2a1a1a] text-[#fca5a5]"
+        : "bg-[#fef2f2] text-[#b91c1c]";
+
   const fieldClass = `h-12 w-full rounded-xl border px-4 text-[17px] outline-none ${
     dark
       ? "border-[#1a3a24] bg-[#08130c] text-[#c4e8d4] placeholder-[#4a8a62] focus:bg-[#0d1a11]"
@@ -103,15 +121,24 @@ export default function ProfileForm({
           >
             <span className="inline-flex items-center gap-2">
               Free
-              <span className={`h-3 w-3 rounded-full border ${dark ? "border-[#4a8a62]" : "border-[#7d8680]"}`} />
-            </span>
-            <span className="inline-flex items-center gap-2">
-              Pro
-              <span className="h-3 w-3 rounded-full border border-[#5ab665] bg-[#25b02d]" />
+              <span
+                className={`h-3 w-3 rounded-full border ${isFree ? "border-[#3ecf3e] bg-[#3ecf3e]" : dark ? "border-[#4a8a62]" : "border-[#7d8680]"}`}
+              />
             </span>
             <span className="inline-flex items-center gap-2">
               Basic
-              <span className="h-3 w-3 rounded-full border border-[#7d8680]" />
+              <span
+                className={`h-3 w-3 rounded-full border ${isBasic ? "border-[#3ecf3e] bg-[#3ecf3e]" : dark ? "border-[#4a8a62]" : "border-[#7d8680]"}`}
+              />
+            </span>
+            <span className="inline-flex items-center gap-2">
+              Pro
+              <span
+                className={`h-3 w-3 rounded-full border ${isPro ? "border-[#3ecf3e] bg-[#3ecf3e]" : dark ? "border-[#4a8a62]" : "border-[#7d8680]"}`}
+              />
+            </span>
+            <span className={`ml-auto rounded-full px-2 py-1 text-xs font-semibold ${statusBadgeClass}`}>
+              {form.subscriptionStatus || "inactive"}
             </span>
           </div>
         </div>
@@ -119,7 +146,7 @@ export default function ProfileForm({
         <label className="block">
           <span className={`mb-1 block text-sm ${sub}`}>Expiry date</span>
           <input
-            value="18.03.2027"
+            value={expiryText}
             readOnly
             className={`h-12 w-full rounded-xl border px-4 text-[17px] outline-none ${
               dark ? "border-[#1a3a24] bg-[#0d1a11] text-[#6fb389]" : "border-[#66ba6c] bg-[#edf1ee] text-[#5a635d]"
