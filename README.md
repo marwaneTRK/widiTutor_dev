@@ -1,43 +1,42 @@
 ﻿# WidiTutor
 
-An AI-powered learning platform that helps students and self-learners understand educational video content faster through transcript extraction, smart summaries, adaptive quizzes, and contextual chat.
+Plateforme d'apprentissage basée sur l'IA qui aide les étudiants à mieux comprendre le contenu vidéo grâce à l'extraction de transcripts, la génération de résumés, des quiz et un chat contextuel.
 
-## Project Preview
+## Aperçu du Projet
 
-![Home Screen](./frontend/src/assets/readme/home.png)
-![Chat Screen](./frontend/src/assets/readme/chat.png)
+![Écran Accueil](./frontend/src/assets/readme/home.png)
+![Écran Chat](./frontend/src/assets/readme/chat.png)
 
 ## Description
 
-WidiTutor centralizes modern learning workflows in one web application. Users can authenticate securely, explore learning content, generate concise summaries, create quizzes from transcripts, and interact with an AI assistant to reinforce understanding.
+WidiTutor centralise un workflow d'étude moderne dans une seule application web. Les utilisateurs peuvent se connecter, consulter du contenu, générer des résumés, créer des quiz à partir de transcripts et interagir avec un assistant IA.
 
-The platform is built as a full-stack architecture with a React frontend and an Express backend connected to MongoDB, plus billing and media integrations for production-ready usage.
+Le projet suit une architecture full-stack avec un frontend React et un backend Express connecté à MongoDB.
 
-## Features
+## Fonctionnalités
 
-- Secure authentication with email/password and Google OAuth
-- Email verification and password reset flows
-- Protected profile management with avatar upload
-- AI-assisted learning workflow:
-  - Video search
-  - Transcript retrieval
-  - Summary generation
-  - Quiz generation
-  - Contextual chat
-- Stripe subscription and billing flows
-- Plan-based feature entitlements (usage limits)
-- Production-focused backend security (helmet, rate limiting, CORS, JWT)
+- Authentification sécurisée (email/mot de passe + Google OAuth)
+- Vérification email et réinitialisation du mot de passe
+- Profil utilisateur protégé avec upload d'avatar
+- Workflow IA pour l'apprentissage :
+  - Recherche de vidéos
+  - Récupération de transcripts
+  - Génération de résumés
+  - Génération de quiz
+  - Chat contextuel
+- Abonnement et paiement via Stripe
+- Limitation d'usage selon le plan utilisateur
 
-## Tech Stack
+## Stack Technique
 
-- Frontend: React 19, Vite, React Router, Tailwind CSS
-- Backend: Node.js, Express 5, Mongoose
-- Database: MongoDB
-- Payments: Stripe
-- Media: Cloudinary
-- DevOps: Docker Compose
+- Frontend : React 19, Vite, React Router, Tailwind CSS
+- Backend : Node.js, Express 5, Mongoose
+- Base de données : MongoDB
+- Paiement : Stripe
+- Média : Cloudinary
+- DevOps : Docker Compose
 
-## Project Structure
+## Structure du Projet
 
 ```bash
 widiTutor_dev/
@@ -70,51 +69,25 @@ widiTutor_dev/
 `-- README.md
 ```
 
-## Environment Variables
+## Variables d'Environnement (Essentiel MERN)
 
-Create `express/.env` from `express/example.env` and configure at least:
+Dans `express/.env` :
 
 ```env
 MONGO_URI=
 JWT_SECRET=
-SESSION_SECRET=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
 ```
 
-Common optional backend variables:
+## Installation et Lancement
 
-```env
-PORT=5000
-JWT_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:5173
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_PRO_MONTHLY=
-STRIPE_PRICE_PRO_YEARLY=
-```
-
-Frontend variables (`frontend/.env`):
-
-```env
-VITE_API_URL=http://localhost:5000
-VITE_STRIPE_PUBLISHABLE_KEY=
-```
-
-## Installation and Run
-
-### Prerequisites
+### Prérequis
 
 - Node.js 18+
 - npm
-- MongoDB (local or Atlas)
-- Docker + Docker Compose (optional)
+- MongoDB (local ou Atlas)
+- Docker + Docker Compose (optionnel)
 
-### Local development
+### Lancement en local
 
 1. Backend
 
@@ -132,45 +105,44 @@ npm install
 npm run dev
 ```
 
-### Docker
+### Lancement avec Docker
 
 ```bash
 docker compose up --build
 ```
 
-## API Highlights
+## Endpoints Principaux
 
-- Auth: `/api/auth/*`
-- AI routes: `/api/generate-summary`, `/api/generate-quiz`, `/api/chat`, `/api/search-videos`, `/api/get-transcript`
-- Billing: `/api/billing/*`
-- Health: `/health`
+- Auth : `/api/auth/*`
+- IA : `/api/generate-summary`, `/api/generate-quiz`, `/api/chat`, `/api/search-videos`, `/api/get-transcript`
+- Billing : `/api/billing/*`
+- Health : `/health`
 
 ## Design
 
-![Figma Design](./frontend/src/assets/readme/figma.PNG)
+![Figma](./frontend/src/assets/readme/figma.PNG)
 
-## Team Contributions
+## Contributions Équipe
 
-![Contributors](./frontend/src/assets/readme/Contributers.png)
+![Contributeurs](./frontend/src/assets/readme/Contributers.png)
 
-## Architecture Overview
+## Aperçu Architecture
 
 ![Architecture](./frontend/src/assets/readme/architecture.png)
 
 ## Notes
 
-- `fastapi/` is intentionally not included in this repository for protection reasons.
-- AI endpoints can require a private/internal FastAPI service in your deployment architecture.
-- Deployment link is not available yet.
-- Jira links are intentionally not included.
+- `fastapi/` n'est pas inclus dans ce dépôt (protection).
+- Les endpoints IA peuvent nécessiter un service FastAPI privé en déploiement.
+- Pas de lien de déploiement public pour le moment.
 
-## Team
+## Équipe
 
-- Marwan Traiki: marwantraiki@gmail.com
-- Anas: anas@gmail.com
-- Mohamed: mohamed@gmail.com
-- Hamza: hamza@gmail.com
+- Marwan Traiki : marwantraiki@gmail.com
+- Anas : anas@gmail.com
+- Mohamed : mohamed@gmail.com
+- Hamza : hamza@gmail.com
 
-## License
+## Licence
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+Ce projet est sous licence MIT. Voir [LICENSE](./LICENSE).
