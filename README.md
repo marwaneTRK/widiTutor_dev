@@ -114,7 +114,6 @@ docker compose up --build
 ## Endpoints Principaux
 
 - Auth : `/api/auth/*`
-- IA : `/api/generate-summary`, `/api/generate-quiz`, `/api/chat`, `/api/search-videos`, `/api/get-transcript`
 - Billing : `/api/billing/*`
 - Health : `/health`
 
